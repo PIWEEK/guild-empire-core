@@ -1,0 +1,49 @@
+# coding: utf-8
+
+from games.game_defs import Game
+from places.place_defs import Place
+from actions.action_defs import Action
+
+
+default = Game(
+
+    # == Global game settings ==
+    slug = '{{ game.name }}',
+    name = '{{ game.name }}',
+
+    # == Places ==
+    places = [
+        {% for key, place in places.iteritems() %}
+        # {{ place.name }}
+        Place(
+            slug = '{{ place.name }}',
+            name = '{{ place.slug }}',
+            actions = [
+                {% for action in place.actions %}
+                Action(
+                    slug = '{{ action.name }}',
+                    name = '{{ action.slug }}',
+                    action_points = 1,
+                    skills_needed = [],
+                    skills_upgraded = ['loyalty'],
+                ),
+                {% endfor %}
+            ],
+        ),
+
+        {% endfor %}
+    ],
+
+    # == Free actions ==
+    free_actions = [
+    {% for action in free_actions %}
+        Action(
+            slug = '{{ action.name }}',
+            name = '{{ action.slug }}',
+            action_points = 1,
+            skills_needed = ['martial-arts', 'stealth'],
+            skills_upgraded = ['martial-arts', 'stealth'],
+        ),
+    {% endfor %}
+    ]
+)
