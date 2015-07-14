@@ -10,7 +10,7 @@ from storage.environment import GAMES
 from storage import conf
 
 
-def get_game_save_path(uuid: str):
+def _get_game_save_path(uuid: str):
     """ Retrieves a path to save a game instance in disk.
     Mostly used to configure the stored filename
     """
@@ -23,7 +23,7 @@ def load_game(uuid: str) -> game_runtime.Game:
         return GAMES[uuid]
 
     # Try to load it from disk
-    path = get_game_save_path(uuid)
+    path = _get_game_save_path(uuid)
 
     if os.path.isfile(path):
         # load game
@@ -33,25 +33,25 @@ def load_game(uuid: str) -> game_runtime.Game:
 
         game = pickle.loads(pickled_game)
 
-        save_game_in_memory(game)
+        _save_game_in_memory(game)
 
         return game
 
     raise Exception('Saved game does not exist')
 
 
-def save_game_in_memory(game: game_runtime.Game):
+def _save_game_in_memory(game: game_runtime.Game):
     """ Stores game into memory dict
     """
     GAMES[game.uuid] = game
 
 
 def save_game(game: game_runtime.Game) -> game_runtime.Game:
-    save_game_in_memory(game)
+    _save_game_in_memory(game)
 
     pickled_game = pickle.dumps(game)
 
-    handler = open(get_game_save_path(game.uuid), 'wb')
+    handler = open(_get_game_save_path(game.uuid), 'wb')
     handler.write(pickled_game)
     handler.close()
 
