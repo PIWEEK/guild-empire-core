@@ -1,8 +1,8 @@
+import importlib
 import sys
 import os
-import importlib
+from uuid import uuid4
 
-from games import game_defs
 from games import game_runtime
 from places import place_defs
 from places import place_runtime
@@ -20,6 +20,7 @@ def new_game(slug: str) -> game_runtime.Game:
     places = [new_place(place_def) for place_def in game_def.places]
 
     return game_runtime.Game(
+        uuid = uuid4(),
         definition = game_def,
         places = places,
     )
@@ -29,4 +30,3 @@ def new_place(place_def: place_defs.Place) -> place_runtime.Place:
     return place_runtime.Place(
         definition = place_def,
     )
-
