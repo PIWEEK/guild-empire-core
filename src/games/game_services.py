@@ -20,7 +20,7 @@ def new_game(slug: str) -> game_runtime.Game:
     places = [new_place(place_def) for place_def in game_def.places]
 
     return game_runtime.Game(
-        uuid = uuid4(),
+        uuid = str(uuid4()),
         definition = game_def,
         places = places,
     )
