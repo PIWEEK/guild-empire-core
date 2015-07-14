@@ -1,6 +1,6 @@
 from games.game_defs import Game
 from places.place_defs import Place
-from actions.action_defs import Action
+from actions.action_defs import *
 from guilds.guild_defs import Guild, GuildAsset
 from characters.character_defs import Character, CharacterSkill, CharacterCondition
 
