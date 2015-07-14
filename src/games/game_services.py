@@ -88,3 +88,9 @@ def _new_character_condition(condition_def: character_defs.CharacterCondition) -
         description = condition_def.description,
     )
 
+
+def get_guild_from_game(game: game_runtime.Game, guild_slug: str) -> guild_runtime.Guild:
+    for guild in game.guilds:
+        if guild.slug == guild_slug:
+            return guild
+    return None
