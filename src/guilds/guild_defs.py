@@ -1,16 +1,16 @@
 from collections import namedtuple
 
-Guild = namedtuple('Guild', [
+Guild = namedtuple('Guild', (
     'slug', # str
     'name', # str
     'assets', # Asset[]
     'members', # Character[]
-])
+))
 
 
-GuildAsset = namedtuple('GuildAsset', [
+GuildAsset = namedtuple('GuildAsset', (
     'slug', # str
     'name', # str
     'value', # int
-])
+))
 

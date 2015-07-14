@@ -1,26 +1,37 @@
 from collections import namedtuple
 
-Character = namedtuple('Character', [
+Character = namedtuple('Character', (
     'slug', # str
     'name', # str
     'archetype', # str
     'skills', # CharacterSkill[]
     'conditions', # CharacterCondition[]
-])
+))
 
 
-CharacterSkill = namedtuple('CharacterSkill', [
+CharacterSkill = namedtuple('CharacterSkill', (
     'slug', # str
     'name', # str
     'value', # int
     'modifier', # int
-])
+))
+
+# Skill values:
+# 100 = champion
+#  80 = master
+#  60 = good
+#  40 = poor
+#  20 = very bad
+#   0 = unable
+
+# Skill modifiers:
+# +- 30
 
 
-CharacterCondition = namedtuple('CharacterCondition', [
+CharacterCondition = namedtuple('CharacterCondition', (
     'slug', # str
     'name', # str
     'type', # str
     'description', # str
-])
+))
 

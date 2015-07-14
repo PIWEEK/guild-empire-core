@@ -25,13 +25,30 @@ default = Game(
                     action_points = 1,
                     skills_needed = [],
                     skills_upgraded = ['loyalty'],
+                    checks = [
+                        ActionCheckAutomatic(
+                            success = [
+                                ActionResultChangeSkillFixed(min = 0, max = 0, skill_slug = 'loyalty', amount = 1),
+                                ActionResultChangeAssetFixed(min = 0, max = 0, asset_slug = 'reputation', amount = 5),
+                            ],
+                        ),
+                    ],
                 ),
                 Action(
                     slug = 'donate-money',
                     name = 'Donate money',
                     action_points = 1,
                     skills_needed = [],
-                    skills_upgraded = ['loyalty'],
+                    skills_upgraded = [],
+                    checks = [
+                        ActionCheckAutomatic(
+                            success = [
+                                ActionResultChangeAssetFixed(min = 0, max = 0, asset_slug = 'gold', amount = -100),
+                                ActionResultChangeAssetFixed(min = 0, max = 0, asset_slug = 'reputation', amount = 10),
+                                ActionResultChangeAssetFixed(min = 0, max = 0, asset_slug = 'influence', amount = 5),
+                            ],
+                        ),
+                    ],
                 ),
             ],
         ),
@@ -45,22 +62,73 @@ default = Game(
                     slug = 'work-on-woodcutter',
                     name = 'Work on woodcutter',
                     action_points = 2,
-                    skills_needed = ['constitution', 'gathering'],
+                    skills_needed = ['gathering'],
                     skills_upgraded = ['constitution', 'gathering'],
+                    checks = [
+                        ActionCheckSkill(
+                            skill_slug = 'gathering',
+                            difficulty = 20,
+                            success = [
+                                ActionResultChangeSkillFixed(min = 0, max = 0, skill_slug = 'constitution', amount = 1),
+                                ActionResultChangeSkillFixed(min = 0, max = 0, skill_slug = 'gathering', amount = 2),
+                                ActionResultChangeAssetVariable(min = 0, max = 0, asset_slug = 'gold', multiplier = 2),
+                            ],
+                            failure = [
+                                ActionResultEvent(min = 0, max = 0, text = '{character} had an argument with the employer and got no paid'),
+                            ],
+                        ),
+                    ],
                 ),
                 Action(
                     slug = 'get-wood-near-forest',
                     name = 'Get wood on a near forest',
                     action_points = 1,
-                    skills_needed = ['constitution', 'gathering'],
+                    skills_needed = ['gathering'],
                     skills_upgraded = ['constitution', 'gathering'],
+                    checks = [
+                        ActionCheckSkill(
+                            skill_slug = 'gathering',
+                            difficulty = 20,
+                            success = [
+                                ActionResultChangeSkillFixed(min = 0, max = 0, skill_slug = 'constitution', amount = 1),
+                                ActionResultChangeSkillFixed(min = 0, max = 0, skill_slug = 'gathering', amount = 2),
+                                ActionResultChangeAssetVariable(min = 0, max = 0, asset_slug = 'wood', multiplier = 1),
+                            ],
+                            failure = [],
+                        ),
+                    ],
                 ),
                 Action(
                     slug = 'get-wood-far-forest',
                     name = 'Get wood on a far forest',
                     action_points = 2,
-                    skills_needed = ['constitution', 'gathering', 'martial-arts'],
+                    skills_needed = ['gathering', 'martial-arts'],
                     skills_upgraded = ['constitution', 'gathering'],
+                    checks = [
+                        ActionCheckSkill(
+                            skill_slug = 'gathering',
+                            difficulty = 20,
+                            success = [
+                                ActionResultChangeSkillFixed(min = 0, max = 0, skill_slug = 'constitution', amount = 1),
+                                ActionResultChangeSkillFixed(min = 0, max = 0, skill_slug = 'gathering', amount = 3),
+                                ActionResultChangeAssetVariable(min = 0, max = 0, asset_slug = 'wood', multiplier = 3),
+                            ],
+                            failure = [],
+                        ),
+                        ActionCheckRandom(
+                            probability = 20,
+                            skill_slug = 'martial-arts',
+                            difficulty = 50,
+                            success = [
+                                ActionResultEvent(min = 0, max = 0, text = '{character} was attacked by bandits, but made them flee'),
+                            ],
+                            failure = [
+                                ActionResultEvent(min = 0, max = 0, text = '{character} was attacked by bandits, some wood stolen'),
+                                ActionResultChangeAssetVariable(min = 0, max = 0, asset_slug = 'wood', multiplier = -1.5),
+                            ],
+                            not_happen = [],
+                        ),
+                    ],
                 ),
             ],
         ),
@@ -75,13 +143,65 @@ default = Game(
             action_points = 1,
             skills_needed = ['martial-arts', 'stealth'],
             skills_upgraded = ['martial-arts', 'stealth'],
+            checks = [
+                ActionCheckTarget(
+                    skill_slug = 'martial-arts',
+                    target_skill_slug = 'martial-arts',
+                    success = [
+                        ActionResultEvent(min = 0, max = 0, text = '{target} now has a broken bone'),
+                        ActionResultTargetAcquireCondition(min = 0, max = 0, condition = CharacterCondition (
+                            slug = 'broken-bone',
+                            name = 'Broken bone',
+                            type = 'bad',
+                            description = 'A broken bone, reduced physical activity',
+                        )),
+                    ],
+                    failure = [],
+                    not_found = [],
+                ),
+                ActionCheckSkill(
+                    skill_slug = 'stealth',
+                    difficulty = 70,
+                    success = [],
+                    failure = [
+                        ActionResultEvent(min = 0, max = 0, text = '{character} has been caught by the guard and is now in jail'),
+                        ActionResultTargetAcquireCondition(min = 0, max = 0, condition = CharacterCondition (
+                            slug = 'in-jail',
+                            name = 'In Jail',
+                            type = 'status',
+                            description = 'In jail, cannot move',
+                        )),
+                        ActionResultEvent(min = 5, max = 0, text = '{character} has been recognized. There is infamy for {guild}'),
+                        ActionResultChangeAssetFixed(min = 5, max = 0, asset_slug = 'reputation', amount = -100),
+                        ActionResultChangeAssetFixed(min = 5, max = 0, asset_slug = 'infamy', amount = 100),
+                    ],
+                ),
+            ],
         ),
         Action(
             slug = 'threaten',
             name = 'Threaten',
             action_points = 1,
-            skills_needed = ['eloquence', 'martial-arts'],
+            skills_needed = ['eloquence'],
             skills_upgraded = ['eloquence'],
+            checks = [
+                ActionCheckTarget(
+                    skill_slug = 'eloquence',
+                    target_skill_slug = 'eloquence',
+                    success = [
+                        ActionResultEvent(min = 0, max = 0, text = '{target} now is afraid'),
+                        ActionResultChangeSkillFixed(min = 0, max = 0, skill_slug = 'eloquence', amount = 1),
+                        ActionResultTargetAcquireCondition(min = 0, max = 0, condition = CharacterCondition (
+                            slug = 'afraid',
+                            name = 'Afraid',
+                            type = 'bad',
+                            description = 'Afraid, reduced eloquence',
+                        )),
+                    ],
+                    failure = [],
+                    not_found = [],
+                ),
+            ],
         ),
     ],
 
@@ -92,6 +212,8 @@ default = Game(
             name = 'Médici',
             assets = [
                 GuildAsset(slug = 'gold', name = 'Gold', value = 10000),
+                GuildAsset(slug = 'wood', name = 'Wood', value = 10000),
+                GuildAsset(slug = 'influence', name = 'Influence', value = 10000),
                 GuildAsset(slug = 'reputation', name = 'Reputation', value = 10000),
                 GuildAsset(slug = 'infamy', name = 'Infamy', value = 10000),
             ],
@@ -104,6 +226,7 @@ default = Game(
                         CharacterSkill(slug = 'martial-arts', name = 'Martial Arts', value = 20, modifier = 0),
                         CharacterSkill(slug = 'eloquence', name = 'Eloquence', value = 90, modifier = 0),
                         CharacterSkill(slug = 'stealth', name = 'Stealth', value = 30, modifier = 0),
+                        CharacterSkill(slug = 'gathering', name = 'Gathering', value = 10, modifier = 0),
                     ],
                     conditions = [
                         CharacterCondition(slug = 'governor', name = 'Governor', type = 'status', description = 'Governor of the City'),
@@ -117,6 +240,7 @@ default = Game(
                         CharacterSkill(slug = 'martial-arts', name = 'Martial Arts', value = 10, modifier = 0),
                         CharacterSkill(slug = 'eloquence', name = 'Eloquence', value = 60, modifier = 0),
                         CharacterSkill(slug = 'stealth', name = 'Stealth', value = 50, modifier = 0),
+                        CharacterSkill(slug = 'gathering', name = 'Gathering', value = 70, modifier = 0),
                     ],
                     conditions = [],
                 ),
@@ -127,6 +251,8 @@ default = Game(
             name = 'Malatesta',
             assets = [
                 GuildAsset(slug = 'gold', name = 'Gold', value = 10000),
+                GuildAsset(slug = 'wood', name = 'Wood', value = 10000),
+                GuildAsset(slug = 'influence', name = 'Influence', value = 10000),
                 GuildAsset(slug = 'reputation', name = 'Reputation', value = 10000),
                 GuildAsset(slug = 'infamy', name = 'Infamy', value = 10000),
             ],
@@ -139,6 +265,7 @@ default = Game(
                         CharacterSkill(slug = 'martial-arts', name = 'Martial Arts', value = 80, modifier = 0),
                         CharacterSkill(slug = 'eloquence', name = 'Eloquence', value = 20, modifier = 0),
                         CharacterSkill(slug = 'stealth', name = 'Stealth', value = 50, modifier = 0),
+                        CharacterSkill(slug = 'gathering', name = 'Gathering', value = 20, modifier = 0),
                     ],
                     conditions = [],
                 ),
@@ -150,6 +277,7 @@ default = Game(
                         CharacterSkill(slug = 'martial-arts', name = 'Martial Arts', value = 5, modifier = 0),
                         CharacterSkill(slug = 'eloquence', name = 'Eloquence', value = 70, modifier = 0),
                         CharacterSkill(slug = 'stealth', name = 'Stealth', value = 40, modifier = 0),
+                        CharacterSkill(slug = 'gathering', name = 'Gathering', value = 30, modifier = 0),
                     ],
                     conditions = [],
                 ),
