@@ -5,5 +5,6 @@ Game = namedtuple('Game', [
     'name', # str
     'places', # Place[]
     'free_actions', # Action[]
+    'guilds', # Guild[]
 ])
 
