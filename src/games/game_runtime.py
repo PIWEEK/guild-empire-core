@@ -32,3 +32,17 @@ TurnCharacterActionTarget = namedtuple('TurnCharacterActionTarget', (
     'guild', # str
     'character', # str
 ))
+
+
+TurnProcess = namedtuple('TurnProcess', (
+    'global_round', # int
+    'guild_characters', # {str: {str: TurnProcessCharacter[]}}
+))
+
+
+TurnProcessCharacter = namedtuple('TurnProcessCharacter', (
+    'character_round', # int
+    'next_action', # int
+    'finished', # bool
+))
+

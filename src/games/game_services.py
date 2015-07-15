@@ -4,6 +4,7 @@ import os
 from uuid import uuid4
 
 import exceptions
+import utils
 
 from games import game_runtime
 from places import place_defs
@@ -18,6 +19,9 @@ sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__f
 
 
 def new_game(slug: str) -> game_runtime.Game:
+    '''
+    Create a new game runtime from a game definition, and persist it.
+    '''
 
     # Import a python module with a name equal to the slug, in the 'definitions' directory
     game_def_module = importlib.import_module(slug)
@@ -95,6 +99,9 @@ def _new_character_condition(condition_def: character_defs.CharacterCondition) -
 
 
 def get_guild_from_game(game: game_runtime.Game, guild_slug: str) -> guild_runtime.Guild:
+    '''
+    Get a guild with the given slug.
+    '''
     for guild in game.guilds:
         if guild.slug == guild_slug:
             return guild
@@ -102,6 +109,10 @@ def get_guild_from_game(game: game_runtime.Game, guild_slug: str) -> guild_runti
 
 
 def submit_turn(game: game_runtime.Game, turn: game_runtime.Turn) -> game_runtime.Game:
+    '''
+    Submit a turn from one player. If this was the last slacker, and now all players have sent their turns,
+    process them and update the game.
+    '''
 
     if not turn.guild.slug in [guild.slug for guild in game.guilds]:
         raise exceptions.InvalidValue('Not existing guild {name}'.format(name = turn.guild.name))
@@ -120,4 +131,66 @@ def submit_turn(game: game_runtime.Game, turn: game_runtime.Turn) -> game_runtim
 
 
 def _process_turns(game: game_runtime.Game) -> game_runtime.Game:
-    print("processing turns...")
+    '''
+    Process all the turns received from players and return a new game runtime with all actions resolved.
+    '''
+    # Initialize processing status
+    turn_process = game_runtime.TurnProcess(
+        global_round = 0,
+        guild_characters = {
+            guild.slug: {
+                member.slug: game_runtime.TurnProcessCharacter(character_round = 0, next_action = 0, finished = False)
+                for member in guild.members
+            }
+            for guild in game.guilds
+        }
+    )
+
+    # Repeat until all character have exhausted all their actions
+    updated_game = game
+    while any([any([not character.finished for character in characters.values()]) for characters in turn_process.guild_characters.values()]):
+        updated_game, turn_process = _process_round(updated_game, turn_process)
+
+    return updated_game
+
+
+def _process_round(game: game_runtime.Game, turn_process: game_runtime.TurnProcess) -> (game_runtime.Game, game_runtime.TurnProcess):
+    '''
+    Process a round of game for all characters.
+    '''
+    updated_game = game
+    updated_turn_process = turn_process
+
+    for guild in game.guilds:
+        for character in guild.members:
+            updated_game, updated_turn_process = _process_round_character(game, guild, character, turn_process)
+
+    updated_turn_process = utils.replace(updated_turn_process, 'global_round', updated_turn_process.global_round + 1)
+
+    return updated_game, updated_turn_process
+
+
+def _process_round_character(
+        game: game_runtime.Game,
+        guild: guild_runtime.Guild,
+        character: character_runtime.Character,
+        turn_process: game_runtime.TurnProcess
+    ) -> (game_runtime.Game, game_runtime.TurnProcess):
+    '''
+    Process a round of game for one character. If the character has no more actions, set the finished flag.
+    '''
+    updated_game = game
+    updated_turn_process = turn_process
+
+    guild_turn = utils.pick_element(lambda t: t.guild == guild.slug, game.turns)
+    character_actions = utils.pick_element(lambda c: c.slug == character.slug, guild_turn) if guild_turn else None
+
+    if not character_actions:
+        updated_turn_process = utils.replace(
+            updated_turn_process,
+            'guild_characters.{guild}.{character}.finished'.format(guild = guild.slug, character = character.slug),
+            True
+        )
+
+    return updated_game, updated_turn_process
+
