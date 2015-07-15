@@ -48,6 +48,7 @@ def _new_guild(guild_def: guild_defs.Guild) -> guild_runtime.Guild:
     return guild_runtime.Guild(
         slug = guild_def.slug,
         name = guild_def.name,
+        color = guild_def.color,
         assets = assets,
         members = members,
     )
@@ -69,6 +70,7 @@ def _new_character(character_def: character_defs.Character) -> character_runtime
         slug = character_def.slug,
         name = character_def.name,
         archetype = character_def.archetype,
+        archetype_slug = character_def.archetype_slug,
         skills = skills,
         conditions = conditions,
     )

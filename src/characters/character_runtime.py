@@ -4,6 +4,7 @@ Character = namedtuple('Character', (
     'slug', # str
     'name', # str
     'archetype', # str
+    'archetype_slug', # str
     'skills', # CharacterSkill[]
     'conditions', # CharacterCondition[]
 ))
@@ -23,4 +24,3 @@ CharacterCondition = namedtuple('CharacterCondition', (
     'type', # str
     'description', # str
 ))
-

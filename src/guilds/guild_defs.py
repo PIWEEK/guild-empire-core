@@ -3,6 +3,7 @@ from collections import namedtuple
 Guild = namedtuple('Guild', (
     'slug', # str
     'name', # str
+    'color', # str
     'assets', # Asset[]
     'members', # Character[]
 ))
@@ -13,4 +14,3 @@ GuildAsset = namedtuple('GuildAsset', (
     'name', # str
     'value', # int
 ))
-

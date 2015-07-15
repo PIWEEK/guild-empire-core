@@ -210,6 +210,7 @@ default = Game(
         Guild(
             slug = 'medici',
             name = 'Médici',
+            color = 'red',
             assets = [
                 GuildAsset(slug = 'gold', name = 'Gold', value = 10000),
                 GuildAsset(slug = 'wood', name = 'Wood', value = 10000),
@@ -222,6 +223,7 @@ default = Game(
                     slug = 'lorenzo',
                     name = 'Lorenzo',
                     archetype = 'Guild Leader',
+                    archetype_slug = 'guild-leader',
                     skills = [
                         CharacterSkill(slug = 'martial-arts', name = 'Martial Arts', value = 20, modifier = 0),
                         CharacterSkill(slug = 'eloquence', name = 'Eloquence', value = 90, modifier = 0),
@@ -236,6 +238,7 @@ default = Game(
                     slug = 'leonardo',
                     name = 'Leonardo',
                     archetype = 'Artisan',
+                    archetype_slug = 'artisan',
                     skills = [
                         CharacterSkill(slug = 'martial-arts', name = 'Martial Arts', value = 10, modifier = 0),
                         CharacterSkill(slug = 'eloquence', name = 'Eloquence', value = 60, modifier = 0),
@@ -249,6 +252,7 @@ default = Game(
         Guild(
             slug = 'malatesta',
             name = 'Malatesta',
+            color = 'blue',
             assets = [
                 GuildAsset(slug = 'gold', name = 'Gold', value = 10000),
                 GuildAsset(slug = 'wood', name = 'Wood', value = 10000),
@@ -261,6 +265,7 @@ default = Game(
                     slug = 'segismundo',
                     name = 'Segismundo',
                     archetype = 'Guild Leader',
+                    archetype_slug = 'guild-leader',
                     skills = [
                         CharacterSkill(slug = 'martial-arts', name = 'Martial Arts', value = 80, modifier = 0),
                         CharacterSkill(slug = 'eloquence', name = 'Eloquence', value = 20, modifier = 0),
@@ -273,6 +278,7 @@ default = Game(
                     slug = 'francesco',
                     name = 'Francesco',
                     archetype = 'Cleric',
+                    archetype_slug = 'cleric',
                     skills = [
                         CharacterSkill(slug = 'martial-arts', name = 'Martial Arts', value = 5, modifier = 0),
                         CharacterSkill(slug = 'eloquence', name = 'Eloquence', value = 70, modifier = 0),
