@@ -7,3 +7,28 @@ Game = namedtuple('Game', (
     'guilds', # Guild[]
 ))
 
+
+Turn = namedtuple('Turn', (
+    'guild', # Guild
+    'characters', # TurnCharacter[]
+))
+
+
+TurnCharacter = namedtuple('TurnCharacter', (
+    'character', # Character
+    'actions', # TurnCharacterAction[]
+))
+
+
+TurnCharacterAction = namedtuple('TurnCharacterAction', (
+    'place', # Place
+    'action', # Action,
+    'target', # TurnCharacterActionTarget
+))
+
+
+TurnCharacterActionTarget = namedtuple('TurnCharacterActionTarget', (
+    'guild', # Guild
+    'character', # Character
+))
+
