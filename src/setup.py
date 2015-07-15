@@ -8,5 +8,5 @@ setup(
     author_email='guild-empire@googlegroups.com',
     url='piweek',
     packages=['actions', 'characters', 'games', 'guilds', 'places', 'storage'],
-    py_modules=['exceptions', 'setup', 'utils']
+    py_modules=['exceptions', 'utils']
 )
