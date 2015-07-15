@@ -16,20 +16,19 @@ Turn = namedtuple('Turn', (
 
 
 TurnCharacter = namedtuple('TurnCharacter', (
-    'character', # Character
-    'actions', # TurnCharacterAction[]
+    'character', # str
+    'actions', # list
 ))
 
 
 TurnCharacterAction = namedtuple('TurnCharacterAction', (
-    'place', # Place
-    'action', # Action,
+    'place', # str
+    'action', # str
     'target', # TurnCharacterActionTarget
 ))
 
 
 TurnCharacterActionTarget = namedtuple('TurnCharacterActionTarget', (
-    'guild', # Guild
-    'character', # Character
+    'guild', # str
+    'character', # str
 ))
-

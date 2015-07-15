@@ -119,4 +119,3 @@ def submit_turn(game: game_runtime.Game, turn: game_runtime.Turn) -> game_runtim
 
 def _process_turns(game: game_runtime.Game) -> game_runtime.Game:
     print("processing turns...")
-
