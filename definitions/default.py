@@ -306,7 +306,8 @@ default = Game(
                 Character(
                     slug = 'roger',
                     name = 'Roger',
-                    archetype = 'thief',
+                    archetype = 'Thief',
+                    archetype_slug = 'thief',
                     skills = [
                         CharacterSkill(slug = 'martial-arts', name = 'Martial Arts', value = 40, modifier = 0),
                         CharacterSkill(slug = 'eloquence', name = 'Eloquence', value = 50, modifier = 0),
@@ -322,7 +323,8 @@ default = Game(
                 Character(
                     slug = 'vergo',
                     name = 'Vergo',
-                    archetype = 'warrior',
+                    archetype = 'Warrior',
+                    archetype_slug = 'warrior',
                     skills = [
                         CharacterSkill(slug = 'martial-arts', name = 'Martial Arts', value = 80, modifier = 0),
                         CharacterSkill(slug = 'eloquence', name = 'Eloquence', value = 50, modifier = 0),
@@ -338,7 +340,8 @@ default = Game(
                 Character(
                     slug = 'valerio',
                     name = 'Valerio',
-                    archetype = 'Combat Cleric',
+                    archetype = 'Combat-Cleric',
+                    archetype_slug ='combat-cleric',
                     skills = [
                         CharacterSkill(slug = 'martial-arts', name = 'Martial Arts', value = 80, modifier = 0),
                         CharacterSkill(slug = 'eloquence', name = 'Eloquence', value = 50, modifier = 0),
@@ -354,7 +357,8 @@ default = Game(
                 Character(
                     slug = 'rasida',
                     name = 'Rasida',
-                    archetype = 'erudite',
+                    archetype = 'Erudite',
+                    archetype_slug = 'erudite',
                     skills = [
                         CharacterSkill(slug = 'martial-arts', name = 'Martial Arts', value = 10, modifier = 0),
                         CharacterSkill(slug = 'eloquence', name = 'Eloquence', value = 100, modifier = 0),
@@ -370,7 +374,8 @@ default = Game(
                 Character(
                     slug = 'egero',
                     name = 'Egero',
-                    archetype = 'wood cutter',
+                    archetype = 'Wood-Cutter',
+                    archetype_slug = 'wood-cutter',
                     skills = [
                         CharacterSkill(slug = 'martial-arts', name = 'Martial Arts', value = 30, modifier = 0),
                         CharacterSkill(slug = 'eloquence', name = 'Eloquence', value = 20, modifier = 0),
@@ -386,7 +391,8 @@ default = Game(
                 Character(
                     slug = 'viper',
                     name = 'Viper',
-                    archetype = 'assassin',
+                    archetype = 'Assassin',
+                    archetype_slug = 'assassin',
                     skills = [
                         CharacterSkill(slug = 'martial-arts', name = 'Martial Arts', value = 70, modifier = 0),
                         CharacterSkill(slug = 'eloquence', name = 'Eloquence', value = 40, modifier = 0),
@@ -402,7 +408,8 @@ default = Game(
                 Character(
                     slug = 'vasil',
                     name = 'Vasil',
-                    archetype = 'merchant',
+                    archetype = 'Merchant',
+                    archetype_slug = 'merchant',
                     skills = [
                         CharacterSkill(slug = 'martial-arts', name = 'Martial Arts', value = 10, modifier = 0),
                         CharacterSkill(slug = 'eloquence', name = 'Eloquence', value = 80, modifier = 0),
@@ -418,7 +425,8 @@ default = Game(
                 Character(
                     slug = 'ezchio',
                     name = 'Ezchio',
-                    archetype = 'craftsman',
+                    archetype = 'Craftsman',
+                    archetype_slug = 'craftsman',
                     skills = [
                         CharacterSkill(slug = 'martial-arts', name = 'Martial Arts', value = 10, modifier = 0),
                         CharacterSkill(slug = 'eloquence', name = 'Eloquence', value = 30, modifier = 0),
