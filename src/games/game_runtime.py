@@ -5,6 +5,7 @@ Game = namedtuple('Game', (
     'definition',  # game_defs.Game
     'places',  # Place[]
     'guilds', # Guild[]
+    'turns', # Turn[]
 ))
 
 

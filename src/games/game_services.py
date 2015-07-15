@@ -3,6 +3,8 @@ import sys
 import os
 from uuid import uuid4
 
+import exceptions
+
 from games import game_runtime
 from places import place_defs
 from places import place_runtime
@@ -29,6 +31,7 @@ def new_game(slug: str) -> game_runtime.Game:
         definition = game_def,
         places = places,
         guilds = guilds,
+        turns = [],
     )
 
 
@@ -94,3 +97,26 @@ def get_guild_from_game(game: game_runtime.Game, guild_slug: str) -> guild_runti
         if guild.slug == guild_slug:
             return guild
     return None
+
+
+def submit_turn(game: game_runtime.Game, turn: game_runtime.Turn) -> game_runtime.Game:
+
+    if not turn.guild.slug in [guild.slug for guild in game.guilds]:
+        raise exceptions.InvalidValue('Not existing guild {name}'.format(name = turn.guild.name))
+
+    if any([(t.guild.slug == turn.guild.slug) for t in game.turns]):
+        raise exceptions.InvalidValue('Duplicated turn for guild {name}'.format(name = turn.guild.name))
+
+    updated_game = game._replace(
+        turns = game.turns + [turn]
+    )
+
+    if len(updated_game.turns) == len(updated_game.guilds):
+        updated_game = _process_turns(game)
+
+    return updated_game
+
+
+def _process_turns(game: game_runtime.Game) -> game_runtime.Game:
+    print("processing turns...")
+
