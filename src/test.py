@@ -1,5 +1,6 @@
 from games.game_services import *
 from games.game_runtime import *
+from storage.methods import save_game
 
 game1 = new_game('default')
 
@@ -82,3 +83,5 @@ for guild in game3.guilds.values():
         for asset, amount in character.last_turn.guild_assets.items():
             print('  {asset}({amount})'.format(asset = asset, amount = amount))
 
+# save_game(game3)
+print("UUID: {}".format(game3.uuid))
