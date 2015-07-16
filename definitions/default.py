@@ -142,7 +142,7 @@ default = Game(
                     skill_slug = 'martial-arts',
                     target_skill_slug = 'martial-arts',
                     success = [
-                        ActionResultTargetAcquireCondition(min = 0, max = 0, message = '{target} now has a broken bone',
+                        ActionResultTargetAcquireCondition(min = 0, max = 0, message = '{target_character} now has a broken bone',
                             condition = CharacterCondition (
                                 slug = 'broken-bone',
                                 name = 'Broken bone',
@@ -185,7 +185,7 @@ default = Game(
                     target_skill_slug = 'eloquence',
                     success = [
                         ActionResultChangeSkillFixed(min = 0, max = 0, skill_slug = 'eloquence', amount = 1),
-                        ActionResultTargetAcquireCondition(min = 0, max = 0, message = '{target} now is afraid',
+                        ActionResultTargetAcquireCondition(min = 0, max = 0, message = '{target_character} now is afraid',
                             condition = CharacterCondition (
                                 slug = 'afraid',
                                 name = 'Afraid',

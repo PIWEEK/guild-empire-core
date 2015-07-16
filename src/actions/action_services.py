@@ -373,4 +373,26 @@ def process_result_ActionResultEvent(
 
     updated_game = game
 
+    message = result.message.format(
+        guild = context.guild.name,
+        character = context.character.name,
+        target_guild = context.guild.name,
+        target_character = context.character.name,
+    )
+
+    print(' -> {message}'.format(message = message))
+
+    updated_game = utils.replace(
+        updated_game,
+        'guilds.' + context.guild.slug + '.members.' + context.character.slug + '.last_turn.events',
+        updated_game.guilds[context.guild.slug].members[context.character.slug].last_turn.events + [
+            character_runtime.CharacterLastTurnEvent(
+                message = message,
+                condition_gained_slug = None,
+                condition_lost_slug = None,
+            )
+        ],
+    )
+
     return updated_game
+
