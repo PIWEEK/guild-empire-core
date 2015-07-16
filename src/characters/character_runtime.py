@@ -10,6 +10,7 @@ Character = namedtuple('Character', (
     'turn_round', # int
     'turn_next_action', # int
     'turn_finished', # bool
+    'last_turn', # CharacterLastTurn
 ))
 
 
@@ -27,3 +28,17 @@ CharacterCondition = namedtuple('CharacterCondition', (
     'type', # str
     'description', # str
 ))
+
+
+CharacterLastTurn = namedtuple('CharacterLastTurn', (
+    'guild_assets', # {slug: int}
+    'events', # CharacterLastTurnEvent[]
+))
+
+
+CharacterLastTurnEvent = namedtuple('CharacterLastTurnEvent', (
+    'message', # str
+    'condition_gained_slug', # str (may be None, mutually exclusive with lost)
+    'condition_lost_slug', # str (may be None, mutually exclusive wit gained)
+))
+

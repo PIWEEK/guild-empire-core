@@ -205,6 +205,12 @@ def process_result_ActionResultChangeAssetFixed(
         updated_game.guilds[context.guild.slug].assets[result.asset_slug].value + result.amount,
     )
 
+    updated_game = utils.replace(
+        updated_game,
+        'guilds.' + context.guild.slug + '.members.' + context.character.slug + '.last_turn.guild_assets.' + result.asset_slug,
+        updated_game.guilds[context.guild.slug].members[context.character.slug].last_turn.guild_assets.get(result.asset_slug, 0) + result.amount,
+    )
+
     return updated_game
 
 
@@ -218,16 +224,24 @@ def process_result_ActionResultChangeAssetVariable(
 
     updated_game = game
 
+    amount = roll * result.multiplier
+
     print(' -> {guild} change {asset} by {amount}'.format(
         guild = context.guild.name,
         asset = result.asset_slug,
-        amount = roll * result.multiplier)
+        amount = amount)
     )
 
     updated_game = utils.replace(
         updated_game,
         'guilds.' + context.guild.slug + '.assets.' + result.asset_slug + '.value',
-        updated_game.guilds[context.guild.slug].assets[result.asset_slug].value + roll * result.multiplier,
+        updated_game.guilds[context.guild.slug].assets[result.asset_slug].value + amount,
+    )
+
+    updated_game = utils.replace(
+        updated_game,
+        'guilds.' + context.guild.slug + '.members.' + context.character.slug + '.last_turn.guild_assets.' + result.asset_slug,
+        updated_game.guilds[context.guild.slug].members[context.character.slug].last_turn.guild_assets.get(result.asset_slug, 0) + amount,
     )
 
     return updated_game

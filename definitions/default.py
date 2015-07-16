@@ -71,7 +71,7 @@ default = Game(
                                 ActionResultChangeAssetVariable(min = 0, max = 0, asset_slug = 'gold', multiplier = 2),
                             ],
                             failure = [
-                                ActionResultEvent(min = 0, max = 0, text = '{character} had an argument with the employer and got no paid'),
+                                ActionResultEvent(min = 0, max = 0, message = '{character} had an argument with the employer and got no paid'),
                             ],
                         ),
                     ],
@@ -115,10 +115,10 @@ default = Game(
                             skill_slug = 'martial-arts',
                             difficulty = 50,
                             success = [
-                                ActionResultEvent(min = 0, max = 0, text = '{character} was attacked by bandits, but made them flee'),
+                                ActionResultEvent(min = 0, max = 0, message = '{character} was attacked by bandits, but made them flee'),
                             ],
                             failure = [
-                                ActionResultEvent(min = 0, max = 0, text = '{character} was attacked by bandits, some wood stolen'),
+                                ActionResultEvent(min = 0, max = 0, message = '{character} was attacked by bandits, some wood stolen'),
                                 ActionResultChangeAssetVariable(min = 0, max = 0, asset_slug = 'wood', multiplier = -1.5),
                             ],
                             not_happen = [],
@@ -142,13 +142,14 @@ default = Game(
                     skill_slug = 'martial-arts',
                     target_skill_slug = 'martial-arts',
                     success = [
-                        ActionResultEvent(min = 0, max = 0, text = '{target} now has a broken bone'),
-                        ActionResultTargetAcquireCondition(min = 0, max = 0, condition = CharacterCondition (
-                            slug = 'broken-bone',
-                            name = 'Broken bone',
-                            type = 'bad',
-                            description = 'A broken bone, reduced physical activity',
-                        )),
+                        ActionResultTargetAcquireCondition(min = 0, max = 0, message = '{target} now has a broken bone',
+                            condition = CharacterCondition (
+                                slug = 'broken-bone',
+                                name = 'Broken bone',
+                                type = 'bad',
+                                description = 'A broken bone, reduced physical activity',
+                            )
+                        ),
                     ],
                     failure = [],
                     not_found = [],
@@ -158,14 +159,15 @@ default = Game(
                     difficulty = 70,
                     success = [],
                     failure = [
-                        ActionResultEvent(min = 0, max = 0, text = '{character} has been caught by the guard and is now in jail'),
-                        ActionResultTargetAcquireCondition(min = 0, max = 0, condition = CharacterCondition (
-                            slug = 'in-jail',
-                            name = 'In Jail',
-                            type = 'status',
-                            description = 'In jail, cannot move',
-                        )),
-                        ActionResultEvent(min = 5, max = 0, text = '{character} has been recognized. There is infamy for {guild}'),
+                        ActionResultTargetAcquireCondition(min = 0, max = 0, message = '{character} has been caught by the guard and is now in jail',
+                            condition = CharacterCondition (
+                                slug = 'in-jail',
+                                name = 'In Jail',
+                                type = 'status',
+                                description = 'In jail, cannot move',
+                            )
+                        ),
+                        ActionResultEvent(min = 5, max = 0, message = '{character} has been recognized. There is infamy for {guild}'),
                         ActionResultChangeAssetFixed(min = 5, max = 0, asset_slug = 'reputation', amount = -100),
                         ActionResultChangeAssetFixed(min = 5, max = 0, asset_slug = 'infamy', amount = 100),
                     ],
@@ -182,14 +184,15 @@ default = Game(
                     skill_slug = 'eloquence',
                     target_skill_slug = 'eloquence',
                     success = [
-                        ActionResultEvent(min = 0, max = 0, text = '{target} now is afraid'),
                         ActionResultChangeSkillFixed(min = 0, max = 0, skill_slug = 'eloquence', amount = 1),
-                        ActionResultTargetAcquireCondition(min = 0, max = 0, condition = CharacterCondition (
-                            slug = 'afraid',
-                            name = 'Afraid',
-                            type = 'bad',
-                            description = 'Afraid, reduced eloquence',
-                        )),
+                        ActionResultTargetAcquireCondition(min = 0, max = 0, message = '{target} now is afraid',
+                            condition = CharacterCondition (
+                                slug = 'afraid',
+                                name = 'Afraid',
+                                type = 'bad',
+                                description = 'Afraid, reduced eloquence',
+                            )
+                        ),
                     ],
                     failure = [],
                     not_found = [],

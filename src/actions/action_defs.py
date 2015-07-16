@@ -77,25 +77,29 @@ ActionResultChangeSkillVariable = namedtuple('ActionResultChangeSkillVariable', 
 
 
 ActionResultAcquireCondition = namedtuple('ActionResultAcquireCondition', ActionResult._fields + (
+    'message', # str
     'condition', # CharacterCondition
 ))
 
 
 ActionResultDropCondition = namedtuple('ActionResultDropCondition', ActionResult._fields + (
+    'message', # str
     'condition_slug', # str
 ))
 
 
 ActionResultTargetAcquireCondition = namedtuple('ActionResultTargetAcquireCondition', ActionResult._fields + (
+    'message', # str
     'condition', # CharacterCondition
 ))
 
 
 ActionResultTargetDropCondition = namedtuple('ActionResultTargetDropCondition', ActionResult._fields + (
+    'message', # str
     'condition_slug', # str
 ))
 
 
 ActionResultEvent = namedtuple('ActionResultEvent', ActionResult._fields + (
-    'text', # str
+    'message', # str
 ))
