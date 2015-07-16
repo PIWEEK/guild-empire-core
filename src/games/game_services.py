@@ -13,6 +13,7 @@ from guilds import guild_defs
 from guilds import guild_runtime
 from characters import character_defs
 from characters import character_runtime
+from actions import action_runtime
 from actions import action_services
 
 
@@ -171,12 +172,28 @@ def _process_round_character(game: game_runtime.Game, guild: guild_runtime.Guild
         updated_game = utils.replace(updated_game, 'guilds.' + guild.slug + '.members.' + character.slug + '.turn_round', 0)
         updated_game = utils.replace(updated_game, 'guilds.' + guild.slug + '.members.' + character.slug + '.turn_next_action', 0)
     else:
-        if character.turn_round <= game.turn_round:
+        if character.turn_round <= updated_game.turn_round:
+
             turn_action = turn_actions[character.turn_next_action]
-            place = game.places[turn_action.place_slug]
-            action = action_services.find_action(turn_action.action_slug, game, place)
-            # TODO: use 'target'
-            updated_game = action_services.process_action(game, guild, character, place, action)
+            place = updated_game.places[turn_action.place_slug]
+            action = action_services.find_action(turn_action.action_slug, updated_game, place)
+            if turn_action.target:
+                target_guild = updated_game.guilds[turn_action.target.guild_slug]
+                target_character = target_guild.members[turn_action.target.character_slug]
+            else:
+                target_guild = None
+                target_character = None
+
+            context = action_runtime.ActionContext(
+                guild = guild,
+                character = character,
+                place = place,
+                action = action,
+                target_guild = target_guild,
+                target_character = target_character,
+            )
+
+            updated_game = action_services.process_action(updated_game, context)
 
     return updated_game
 
