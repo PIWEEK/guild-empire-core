@@ -257,6 +257,24 @@ def process_result_ActionResultChangeSkillFixed(
 
     updated_game = game
 
+    print(' -> {character} change {skill} by {amount}'.format(
+        character = context.character.name,
+        skill = result.skill_slug,
+        amount = result.amount)
+    )
+
+    updated_game = utils.replace(
+        updated_game,
+        'guilds.' + context.guild.slug + '.members.' + context.character.slug + '.skills.' + result.skill_slug + '.value',
+        updated_game.guilds[context.guild.slug].members[context.character.slug].skills[result.skill_slug].value + result.amount,
+    )
+
+    updated_game = utils.replace(
+        updated_game,
+        'guilds.' + context.guild.slug + '.members.' + context.character.slug + '.last_turn.character_skills.' + result.skill_slug,
+        updated_game.guilds[context.guild.slug].members[context.character.slug].last_turn.character_skills.get(result.skill_slug, 0) + result.amount,
+    )
+
     return updated_game
 
 
@@ -269,6 +287,26 @@ def process_result_ActionResultChangeSkillVariable(
     ) -> game_runtime.Game:
 
     updated_game = game
+
+    amount = roll * result.multiplier
+
+    print(' -> {character} change {skill} by {amount}'.format(
+        character = context.character.name,
+        skill = result.skill_slug,
+        amount = amount)
+    )
+
+    updated_game = utils.replace(
+        updated_game,
+        'guilds.' + context.guild.slug + '.members.' + context.character.slug + '.skills.' + result.skill_slug + '.value',
+        updated_game.guilds[context.guild.slug].members[context.character.slug].skills[result.skill_slug].value + amount,
+    )
+
+    updated_game = utils.replace(
+        updated_game,
+        'guilds.' + context.guild.slug + '.members.' + context.character.slug + '.last_turn.character_skills.' + result.skill_slug,
+        updated_game.guilds[context.guild.slug].members[context.character.slug].last_turn.character_skills.get(result.skill_slug, 0) + amount,
+    )
 
     return updated_game
 

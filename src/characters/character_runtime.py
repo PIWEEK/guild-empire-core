@@ -32,6 +32,7 @@ CharacterCondition = namedtuple('CharacterCondition', (
 
 CharacterLastTurn = namedtuple('CharacterLastTurn', (
     'guild_assets', # {slug: int}
+    'character_skills', # {slug: int}
     'events', # CharacterLastTurnEvent[]
 ))
 

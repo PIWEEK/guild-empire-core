@@ -85,6 +85,7 @@ def _new_character(character_def: character_defs.Character) -> character_runtime
         turn_finished = False,
         last_turn = character_runtime.CharacterLastTurn(
             guild_assets = {},
+            character_skills = {},
             events = [],
         )
     )
@@ -138,6 +139,7 @@ def _process_turns(game: game_runtime.Game) -> game_runtime.Game:
     for guild in updated_game.guilds.values():
         for character in guild.members.values():
             updated_game = utils.replace(updated_game, 'guilds.' + guild.slug + '.members.' + character.slug + '.last_turn.guild_assets', {})
+            updated_game = utils.replace(updated_game, 'guilds.' + guild.slug + '.members.' + character.slug + '.last_turn.character_skills', {})
             updated_game = utils.replace(updated_game, 'guilds.' + guild.slug + '.members.' + character.slug + '.last_turn.events', [])
 
     # Repeat until all character have exhausted all their actions
