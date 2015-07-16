@@ -74,7 +74,7 @@ def _new_character(character_def: character_defs.Character) -> character_runtime
         slug = character_def.slug,
         name = character_def.name,
         archetype = character_def.archetype,
-        archetype_slug = character_def.archetype_slug,
+        avatar_slug = character_def.avatar_slug,
         skills = skills,
         conditions = conditions,
     )
@@ -182,4 +182,3 @@ def _process_round_character(
         )
 
     return updated_game, updated_turn_process
-
