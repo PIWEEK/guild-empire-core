@@ -289,8 +289,8 @@ default = Game(
                 Character(
                     slug = 'francesco',
                     name = 'Francesco',
-                    archetype = 'Cleric',
-                    avatar_slug = 'cleric',
+                    archetype = 'Priest',
+                    avatar_slug = 'priest',
                     skills = [
                         CharacterSkill(slug = 'martial-arts', name = 'Martial Arts', value = 5, modifier = 0),
                         CharacterSkill(slug = 'eloquence', name = 'Eloquence', value = 70, modifier = 0),
