@@ -53,6 +53,11 @@ turn_malatesta = Turn(
         'segismundo': TurnCharacter(
             character_slug = 'segismundo',
             actions = [
+                TurnCharacterAction(
+                    place_slug = 'tavern',
+                    action_slug = 'drunk-fighting-tournament',
+                    target = None,
+                ),
             ],
         ),
         'francesco': TurnCharacter(
@@ -70,6 +75,16 @@ turn_malatesta = Turn(
                 ),
             ],
         ),
+        'valerio': TurnCharacter(
+            character_slug = 'valerio',
+            actions = [
+                TurnCharacterAction(
+                    place_slug = 'tavern',
+                    action_slug = 'get-a-drink',
+                    target = None,
+                ),
+            ],
+        ),
     },
 )
 
@@ -82,6 +97,15 @@ for guild in game3.guilds.values():
         print('{character}'.format(character = character.name))
         for asset, amount in character.last_turn.guild_assets.items():
             print('  {asset}({amount})'.format(asset = asset, amount = amount))
+        for skill, amount in character.last_turn.character_skills.items():
+            print('  {skill}({amount})'.format(skill = skill, amount = amount))
+        for event in character.last_turn.events:
+            if event.condition_gained_slug:
+                print('  {message} [+{condition}]'.format(message = event.message, condition = event.condition_gained_slug))
+            elif event.condition_lost_slug:
+                print('  {message} [-{condition}]'.format(message = event.message, condition = event.condition_lost_slug))
+            else:
+                print('  {message}'.format(message = event.message))
 
 # save_game(game3)
 print("UUID: {}".format(game3.uuid))

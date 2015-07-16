@@ -321,6 +321,33 @@ def process_result_ActionResultAcquireCondition(
 
     updated_game = game
 
+    message = result.message.format(
+        guild = context.guild.name,
+        character = context.character.name,
+        target_guild = context.target_guild.name if context.target_guild else '',
+        target_character = context.target_character.name if context.target_character else '',
+    )
+
+    print(' -> {message} [acquire {condition}]'.format(message = message, condition = result.condition.slug))
+
+    updated_game = utils.replace(
+        updated_game,
+        'guilds.' + context.guild.slug + '.members.' + context.character.slug + '.conditions.' + result.condition.slug,
+        result.condition,
+    )
+
+    updated_game = utils.replace(
+        updated_game,
+        'guilds.' + context.guild.slug + '.members.' + context.character.slug + '.last_turn.events',
+        updated_game.guilds[context.guild.slug].members[context.character.slug].last_turn.events + [
+            character_runtime.CharacterLastTurnEvent(
+                message = message,
+                condition_gained_slug = result.condition.slug,
+                condition_lost_slug = None,
+            )
+        ],
+    )
+
     return updated_game
 
 

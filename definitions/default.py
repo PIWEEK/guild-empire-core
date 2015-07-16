@@ -51,6 +51,75 @@ default = Game(
             ],
         ),
 
+        # Tavern
+        Place(
+            slug = 'tavern',
+            name = 'Tavern',
+            actions = [
+                Action(
+                    slug = 'get-a-drink',
+                    name = 'Get a drink',
+                    action_points = 1,
+                    skills_needed = [],
+                    checks = [
+                        ActionCheckAutomatic(
+                            success = [
+                                ActionResultAcquireCondition(min = 0, max = 0, message = '{character} is now happy drunk',
+                                    condition = CharacterCondition (
+                                        slug = 'happy-drunk',
+                                        name = 'Happy drunk',
+                                        type = 'good',
+                                        description = 'Happy drunk, increased eloquence',
+                                    )
+                                ),
+                            ],
+                        ),
+                    ],
+                ),
+                Action(
+                    slug = 'drunk-fighting-tournament',
+                    name = 'Participate in a drunk fighting tournament',
+                    action_points = 3,
+                    skills_needed = [],
+                    checks = [
+                        ActionCheckSkill(
+                            skill_slug = 'martial-arts',
+                            difficulty = 125,
+                            success = [
+                                ActionResultEvent(min = 0, max = 10, message = '{target_character} has participated in a tournament, with good performance'),
+                                ActionResultChangeAssetVariable(min = 0, max = 10, asset_slug = 'gold', multiplier = 2),
+                                ActionResultChangeAssetVariable(min = 0, max = 10, asset_slug = 'reputation', multiplier = 2),
+                                ActionResultChangeAssetVariable(min = 0, max = 10, asset_slug = 'influence', multiplier = 2),
+                                ActionResultAcquireCondition(min = 11, max = 0, message = '{target_character} has won a tournament!!',
+                                    condition = CharacterCondition (
+                                        slug = 'winner',
+                                        name = 'Winner',
+                                        type = 'good',
+                                        description = 'Winner of the drunk fighting tournament',
+                                    )
+                                ),
+                                ActionResultChangeAssetVariable(min = 11, max = 0, asset_slug = 'gold', multiplier = 4),
+                                ActionResultChangeAssetVariable(min = 11, max = 0, asset_slug = 'reputation', multiplier = 4),
+                                ActionResultChangeAssetVariable(min = 11, max = 0, asset_slug = 'influence', multiplier = 4),
+                            ],
+                            failure = [
+                                ActionResultAcquireCondition(min = 0, max = 0, message = '{target_character} lost tournament in the first fight!!',
+                                    condition = CharacterCondition (
+                                        slug = 'loser',
+                                        name = 'Loser',
+                                        type = 'bad',
+                                        description = 'Loser of the drunk fighting tournament',
+                                    )
+                                ),
+                                ActionResultChangeAssetVariable(min = 0, max = 0, asset_slug = 'gold', multiplier = -1),
+                                ActionResultChangeAssetVariable(min = 0, max = 0, asset_slug = 'reputation', multiplier = -1),
+                            ],
+                        ),
+                    ],
+                ),
+            ],
+        ),
+
         # Forest
         Place(
             slug = 'forest',
