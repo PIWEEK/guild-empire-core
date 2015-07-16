@@ -376,8 +376,8 @@ def process_result_ActionResultEvent(
     message = result.message.format(
         guild = context.guild.name,
         character = context.character.name,
-        target_guild = context.guild.name,
-        target_character = context.character.name,
+        target_guild = context.target_guild.name if context.target_guild else '',
+        target_character = context.target_character.name if context.target_character else '',
     )
 
     print(' -> {message}'.format(message = message))
