@@ -114,17 +114,19 @@ def submit_turn(game: game_runtime.Game, turn: game_runtime.Turn) -> game_runtim
     Submit a turn from one player. If this was the last slacker, and now all players have sent their turns,
     process them and update the game.
     '''
+    updated_game = game
 
-    if not turn.guild_slug in game.guilds:
+    if not turn.guild_slug in updated_game.guilds:
         raise exceptions.InvalidValue('Not existing guild {slug}'.format(slug = turn.guild_slug))
 
-    if turn.guild_slug in game.turns:
+    if turn.guild_slug in updated_game.turns:
         raise exceptions.InvalidValue('Duplicated turn for guild {slug}'.format(slug = turn.guild_slug))
 
-    updated_game = utils.replace(game, 'turns', utils.updated_dict(game.turns, turn.guild_slug, turn))
+    updated_game = utils.replace(updated_game, 'turns', utils.updated_dict(updated_game.turns, turn.guild_slug, turn))
 
     if len(updated_game.turns) == len(updated_game.guilds):
         updated_game = _process_turns(updated_game)
+        updated_game = utils.replace(updated_game, 'turns', [])
 
     return updated_game
 
