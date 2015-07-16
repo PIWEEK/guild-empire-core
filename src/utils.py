@@ -34,3 +34,12 @@ def replace(structure, path, value):
         structure[path_cur] = sub_value
         return structure
 
+
+def updated_dict(dictionary, key, value):
+    '''
+    Return a new dictionary that is a copy of the original, with the value added in the key.
+    '''
+    new_dict = copy(dictionary)
+    new_dict[key] = value
+    return new_dict
+

@@ -35,7 +35,7 @@ def new_game(slug: str) -> game_runtime.Game:
         definition = game_def,
         places = places,
         guilds = guilds,
-        turns = [],
+        turns = {},
     )
 
 
@@ -107,12 +107,10 @@ def submit_turn(game: game_runtime.Game, turn: game_runtime.Turn) -> game_runtim
     if not turn.guild.slug in game.guilds:
         raise exceptions.InvalidValue('Not existing guild {name}'.format(name = turn.guild.name))
 
-    if any([(t.guild.slug == turn.guild.slug) for t in game.turns]):
+    if turn.guild.slug in game.turns:
         raise exceptions.InvalidValue('Duplicated turn for guild {name}'.format(name = turn.guild.name))
 
-    updated_game = game._replace(
-        turns = game.turns + [turn]
-    )
+    updated_game = utils.replace(game, 'turns', utils.updated_dict(game.turns, turn.guild.slug, turn))
 
     if len(updated_game.turns) == len(updated_game.guilds):
         updated_game = _process_turns(game)
@@ -172,8 +170,9 @@ def _process_round_character(
     updated_game = game
     updated_turn_process = turn_process
 
-    guild_turn = utils.pick_element(lambda t: t.guild == guild.slug, game.turns)
-    character_actions = utils.pick_element(lambda c: c.slug == character.slug, guild_turn) if guild_turn else None
+    guild_turn = game.turns.get(guild.slug, None)
+    turn_character = guild_turn.characters.get(character.slug, None) if guild_turn else None
+    character_actions = turn_character.actions if turn_character else []
 
     if not character_actions:
         updated_turn_process = utils.replace(

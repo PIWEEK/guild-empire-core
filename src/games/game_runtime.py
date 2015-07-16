@@ -5,19 +5,19 @@ Game = namedtuple('Game', (
     'definition',  # game_defs.Game
     'places',  # {slug: Place}
     'guilds', # {slug: Guild}
-    'turns', # Turn[]
+    'turns', # {slug: Turn}
 ))
 
 
 Turn = namedtuple('Turn', (
     'guild', # Guild
-    'characters', # TurnCharacter[]
+    'characters', # {slug: TurnCharacter}
 ))
 
 
 TurnCharacter = namedtuple('TurnCharacter', (
     'character', # str
-    'actions', # list
+    'actions', # TurnCharacterAction[]
 ))
 
 
