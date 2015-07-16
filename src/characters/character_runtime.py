@@ -5,8 +5,8 @@ Character = namedtuple('Character', (
     'name', # str
     'archetype', # str
     'archetype_slug', # str
-    'skills', # CharacterSkill[]
-    'conditions', # CharacterCondition[]
+    'skills', # {slug: CharacterSkill}
+    'conditions', # {slug: CharacterCondition}
 ))
 
 

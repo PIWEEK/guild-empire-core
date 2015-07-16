@@ -4,8 +4,8 @@ Guild = namedtuple('Guild', (
     'slug', # str
     'name', # str
     'color', # str
-    'assets', # Asset[]
-    'members', # Character[]
+    'assets', # {slug: Asset}
+    'members', # {slug: Character}
 ))
 
 

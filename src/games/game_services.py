@@ -27,8 +27,8 @@ def new_game(slug: str) -> game_runtime.Game:
     game_def_module = importlib.import_module(slug)
     game_def = getattr(game_def_module, slug)
 
-    places = [_new_place(place_def) for place_def in game_def.places]
-    guilds = [_new_guild(guild_def) for guild_def in game_def.guilds]
+    places = {place_def.slug: _new_place(place_def) for place_def in game_def.places}
+    guilds = {guild_def.slug: _new_guild(guild_def) for guild_def in game_def.guilds}
 
     return game_runtime.Game(
         uuid = str(uuid4()),
@@ -46,8 +46,8 @@ def _new_place(place_def: place_defs.Place) -> place_runtime.Place:
 
 
 def _new_guild(guild_def: guild_defs.Guild) -> guild_runtime.Guild:
-    assets = [_new_guild_asset(asset_def) for asset_def in guild_def.assets]
-    members = [_new_character(character_def) for character_def in guild_def.members]
+    assets = {asset_def.slug: _new_guild_asset(asset_def) for asset_def in guild_def.assets}
+    members = {character_def.slug: _new_character(character_def) for character_def in guild_def.members}
 
     return guild_runtime.Guild(
         slug = guild_def.slug,
@@ -67,8 +67,8 @@ def _new_guild_asset(asset_def: guild_defs.GuildAsset) -> guild_runtime.GuildAss
 
 
 def _new_character(character_def: character_defs.Character) -> character_runtime.Character:
-    skills = [_new_character_skill(skill_def) for skill_def in character_def.skills]
-    conditions = [_new_character_condition(condition_def) for condition_def in character_def.conditions]
+    skills = {skill_def.slug: _new_character_skill(skill_def) for skill_def in character_def.skills}
+    conditions = {condition_def.slug: _new_character_condition(condition_def) for condition_def in character_def.conditions}
 
     return character_runtime.Character(
         slug = character_def.slug,
@@ -98,23 +98,13 @@ def _new_character_condition(condition_def: character_defs.CharacterCondition) -
     )
 
 
-def get_guild_from_game(game: game_runtime.Game, guild_slug: str) -> guild_runtime.Guild:
-    '''
-    Get a guild with the given slug.
-    '''
-    for guild in game.guilds:
-        if guild.slug == guild_slug:
-            return guild
-    return None
-
-
 def submit_turn(game: game_runtime.Game, turn: game_runtime.Turn) -> game_runtime.Game:
     '''
     Submit a turn from one player. If this was the last slacker, and now all players have sent their turns,
     process them and update the game.
     '''
 
-    if not turn.guild.slug in [guild.slug for guild in game.guilds]:
+    if not turn.guild.slug in game.guilds:
         raise exceptions.InvalidValue('Not existing guild {name}'.format(name = turn.guild.name))
 
     if any([(t.guild.slug == turn.guild.slug) for t in game.turns]):
@@ -140,9 +130,9 @@ def _process_turns(game: game_runtime.Game) -> game_runtime.Game:
         guild_characters = {
             guild.slug: {
                 member.slug: game_runtime.TurnProcessCharacter(character_round = 0, next_action = 0, finished = False)
-                for member in guild.members
+                for member in guild.members.values()
             }
-            for guild in game.guilds
+            for guild in game.guilds.values()
         }
     )
 
@@ -161,8 +151,8 @@ def _process_round(game: game_runtime.Game, turn_process: game_runtime.TurnProce
     updated_game = game
     updated_turn_process = turn_process
 
-    for guild in game.guilds:
-        for character in guild.members:
+    for guild in game.guilds.values():
+        for character in guild.members.values():
             updated_game, updated_turn_process = _process_round_character(game, guild, character, turn_process)
 
     updated_turn_process = utils.replace(updated_turn_process, 'global_round', updated_turn_process.global_round + 1)
