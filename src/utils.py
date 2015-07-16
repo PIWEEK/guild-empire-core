@@ -1,4 +1,5 @@
 from copy import copy
+from random import randint
 
 
 def pick_element(function, iterable):
@@ -25,14 +26,15 @@ def replace(structure, path, value):
             sub_structure = getattr(structure, path_cur)
             sub_value = replace(sub_structure, path_rest, value)
         else:
-            sub_structure = copy(structure[path_cur])
+            sub_structure = structure[path_cur]
             sub_value = replace(sub_structure, path_rest, value)
 
     if isinstance(structure, tuple):
         return structure._replace(**{path_cur: sub_value})
     else:
-        structure[path_cur] = sub_value
-        return structure
+        new_structure = copy(structure)
+        new_structure[path_cur] = sub_value
+        return new_structure
 
 
 def updated_dict(dictionary, key, value):
@@ -42,4 +44,17 @@ def updated_dict(dictionary, key, value):
     new_dict = copy(dictionary)
     new_dict[key] = value
     return new_dict
+
+
+def dice_roll(level: int, difficulty: int) -> int:
+    '''
+    The basic dice roll in this game:
+     - Roll 10d10
+     - Add level
+     - Compare with difficulty
+
+    The result is the difference (success if >= 0, else failure)
+    '''
+    roll = sum([randint(1, 10) for i in range(10)])
+    return (roll + level - difficulty)
 

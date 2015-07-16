@@ -31,12 +31,18 @@ def find_action(action_slug: str, game: game_runtime.Game, place: place_runtime.
 
 
 def process_action(game: game_runtime.Game, context: action_runtime.ActionContext) -> game_runtime.Game:
+    '''
+    Process one action within a context, and makes any required modifications in the game state.
+
+    Then increments the turn round indexes of the character as needed.
+    '''
     updated_game = game
 
-    print('{round}: {character} is doing {action} in {place}'.format(
+    print('{round}: {character} {guild} is doing {action} in {place}'.format(
         round = updated_game.turn_round,
         action = context.action.name,
         character = context.character.name,
+        guild = context.guild.name,
         place = context.place.definition.name
     ))
 
@@ -64,7 +70,9 @@ def process_check(
         context: action_runtime.ActionContext,
         check: action_defs.ActionCheck,
     ) -> game_runtime.Game:
-
+    '''
+    Process one check of an action, and execute some of the results inside.
+    '''
     current_module = sys.modules[__name__]
     process_function = getattr(current_module, 'process_check_' + check.__class__.__name__)
     updated_game = process_function(game, context, check)
@@ -80,8 +88,9 @@ def process_check_ActionCheckAutomatic(
 
     updated_game = game
 
+    print(' (automatic)')
     for result in check.success:
-        updated_game = process_result(updated_game, context, check, result)
+        updated_game = process_result(updated_game, context, check, result, 0)
 
     return updated_game
 
@@ -94,6 +103,18 @@ def process_check_ActionCheckSkill(
 
     updated_game = game
 
+    skill = context.character.skills[check.skill_slug]
+    roll = utils.dice_roll(skill.value + skill.modifier, check.difficulty)
+
+    if roll >= 0:
+        print(' (success)')
+        for result in check.success:
+            updated_game = process_result(updated_game, context, check, result, roll)
+    else:
+        print(' (failure)')
+        for result in check.failure:
+            updated_game = process_result(updated_game, context, check, result, -roll)
+
     return updated_game
 
 
@@ -104,6 +125,8 @@ def process_check_ActionCheckTarget(
     ) -> game_runtime.Game:
 
     updated_game = game
+
+    # TODO
 
     return updated_game
 
@@ -116,7 +139,26 @@ def process_check_ActionCheckRandom(
 
     updated_game = game
 
+    from random import randint
+    if randint(1, 100) <= check.probability:
+        skill = context.character.skills[check.skill_slug]
+        roll = utils.dice_roll(skill.value + skill.modifier, check.difficulty)
+
+        if roll >= 0:
+            print(' (success)')
+            for result in check.success:
+                updated_game = process_result(updated_game, context, check, result, roll)
+        else:
+            print(' (failure)')
+            for result in check.failure:
+                updated_game = process_result(updated_game, context, check, result, -roll)
+    else:
+        print(' (not_happen)')
+        for result in check.not_happen:
+            updated_game = process_result(updated_game, context, check, result, 0)
+
     return updated_game
+
 
 
 # Action results
@@ -126,11 +168,17 @@ def process_result(
         context: action_runtime.ActionContext,
         check: action_defs.ActionCheck,
         result: action_defs.ActionResult,
+        roll: int,
     ) -> game_runtime.Game:
+    '''
+    Process one action result, making some modifications on the game status.
+    '''
+    updated_game = game
 
-    current_module = sys.modules[__name__]
-    process_function = getattr(current_module, 'process_result_' + result.__class__.__name__)
-    updated_game = process_function(game, context, check, result)
+    if (result.min == 0 or roll >= result.min) and (result.max == 0 or roll <= result.max):
+        current_module = sys.modules[__name__]
+        process_function = getattr(current_module, 'process_result_' + result.__class__.__name__)
+        updated_game = process_function(updated_game, context, check, result, roll)
 
     return updated_game
 
@@ -140,9 +188,22 @@ def process_result_ActionResultChangeAssetFixed(
         context: action_runtime.ActionContext,
         check: action_defs.ActionCheck,
         result: action_defs.ActionResult,
+        roll: int,
     ) -> game_runtime.Game:
 
     updated_game = game
+
+    print(' -> {guild} change {asset} by {amount}'.format(
+        guild = context.guild.name,
+        asset = result.asset_slug,
+        amount = result.amount)
+    )
+
+    updated_game = utils.replace(
+        updated_game,
+        'guilds.' + context.guild.slug + '.assets.' + result.asset_slug + '.value',
+        updated_game.guilds[context.guild.slug].assets[result.asset_slug].value + result.amount,
+    )
 
     return updated_game
 
@@ -152,9 +213,22 @@ def process_result_ActionResultChangeAssetVariable(
         context: action_runtime.ActionContext,
         check: action_defs.ActionCheck,
         result: action_defs.ActionResult,
+        roll: int,
     ) -> game_runtime.Game:
 
     updated_game = game
+
+    print(' -> {guild} change {asset} by {amount}'.format(
+        guild = context.guild.name,
+        asset = result.asset_slug,
+        amount = roll * result.multiplier)
+    )
+
+    updated_game = utils.replace(
+        updated_game,
+        'guilds.' + context.guild.slug + '.assets.' + result.asset_slug + '.value',
+        updated_game.guilds[context.guild.slug].assets[result.asset_slug].value + roll * result.multiplier,
+    )
 
     return updated_game
 
@@ -164,6 +238,7 @@ def process_result_ActionResultChangeSkillFixed(
         context: action_runtime.ActionContext,
         check: action_defs.ActionCheck,
         result: action_defs.ActionResult,
+        roll: int,
     ) -> game_runtime.Game:
 
     updated_game = game
@@ -176,6 +251,7 @@ def process_result_ActionResultChangeSkillVariable(
         context: action_runtime.ActionContext,
         check: action_defs.ActionCheck,
         result: action_defs.ActionResult,
+        roll: int,
     ) -> game_runtime.Game:
 
     updated_game = game
@@ -188,6 +264,7 @@ def process_result_ActionResultAcquireCondition(
         context: action_runtime.ActionContext,
         check: action_defs.ActionCheck,
         result: action_defs.ActionResult,
+        roll: int,
     ) -> game_runtime.Game:
 
     updated_game = game
@@ -200,6 +277,7 @@ def process_result_ActionResultDropCondition(
         context: action_runtime.ActionContext,
         check: action_defs.ActionCheck,
         result: action_defs.ActionResult,
+        roll: int,
     ) -> game_runtime.Game:
 
     updated_game = game
@@ -212,6 +290,7 @@ def process_result_ActionResultTargetAcquireCondition(
         context: action_runtime.ActionContext,
         check: action_defs.ActionCheck,
         result: action_defs.ActionResult,
+        roll: int,
     ) -> game_runtime.Game:
 
     updated_game = game
@@ -224,6 +303,7 @@ def process_result_ActionResultTargetDropCondition(
         context: action_runtime.ActionContext,
         check: action_defs.ActionCheck,
         result: action_defs.ActionResult,
+        roll: int,
     ) -> game_runtime.Game:
 
     updated_game = game
@@ -236,6 +316,7 @@ def process_result_ActionResultEvent(
         context: action_runtime.ActionContext,
         check: action_defs.ActionCheck,
         result: action_defs.ActionResult,
+        roll: int,
     ) -> game_runtime.Game:
 
     updated_game = game
