@@ -10,6 +10,16 @@ from actions import action_defs
 from actions import action_runtime
 
 
+def _get_upgraded_skills_from_action(action: action_defs.Action) -> list:
+    skills = [
+        success.skill_slug  \
+            for check in action.checks \
+                for success in check.success if getattr(success, 'skill_slug', False)
+    ]
+
+    return skills
+
+
 def find_action(action_slug: str, game: game_runtime.Game, place: place_runtime.Place) -> action_defs.Action:
     '''
     Find an action in a game, by slug, and related to some place.
@@ -231,4 +241,3 @@ def process_result_ActionResultEvent(
     updated_game = game
 
     return updated_game
-

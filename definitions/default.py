@@ -24,7 +24,6 @@ default = Game(
                     name = 'Pray',
                     action_points = 1,
                     skills_needed = [],
-                    skills_upgraded = ['loyalty'],
                     checks = [
                         ActionCheckAutomatic(
                             success = [
@@ -39,7 +38,6 @@ default = Game(
                     name = 'Donate money',
                     action_points = 1,
                     skills_needed = [],
-                    skills_upgraded = [],
                     checks = [
                         ActionCheckAutomatic(
                             success = [
@@ -63,7 +61,6 @@ default = Game(
                     name = 'Work on woodcutter',
                     action_points = 2,
                     skills_needed = ['gathering'],
-                    skills_upgraded = ['constitution', 'gathering'],
                     checks = [
                         ActionCheckSkill(
                             skill_slug = 'gathering',
@@ -84,7 +81,6 @@ default = Game(
                     name = 'Get wood on a near forest',
                     action_points = 1,
                     skills_needed = ['gathering'],
-                    skills_upgraded = ['constitution', 'gathering'],
                     checks = [
                         ActionCheckSkill(
                             skill_slug = 'gathering',
@@ -103,7 +99,6 @@ default = Game(
                     name = 'Get wood on a far forest',
                     action_points = 2,
                     skills_needed = ['gathering', 'martial-arts'],
-                    skills_upgraded = ['constitution', 'gathering'],
                     checks = [
                         ActionCheckSkill(
                             skill_slug = 'gathering',
@@ -142,7 +137,6 @@ default = Game(
             name = 'Break bone',
             action_points = 1,
             skills_needed = ['martial-arts', 'subterfuge'],
-            skills_upgraded = ['martial-arts', 'subterfuge'],
             checks = [
                 ActionCheckTarget(
                     skill_slug = 'martial-arts',
@@ -183,7 +177,6 @@ default = Game(
             name = 'Threaten',
             action_points = 1,
             skills_needed = ['eloquence'],
-            skills_upgraded = ['eloquence'],
             checks = [
                 ActionCheckTarget(
                     skill_slug = 'eloquence',

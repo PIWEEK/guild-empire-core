@@ -5,7 +5,6 @@ Action = namedtuple('Action', (
     'name', # str
     'action_points', # int
     'skills_needed', # str[]
-    'skills_upgraded', # str[]
     'checks', # ActionCheck[]
 ))
 
@@ -100,4 +99,3 @@ ActionResultTargetDropCondition = namedtuple('ActionResultTargetDropCondition', 
 ActionResultEvent = namedtuple('ActionResultEvent', ActionResult._fields + (
     'text', # str
 ))
-
