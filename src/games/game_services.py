@@ -164,7 +164,8 @@ def _process_round(game: game_runtime.Game) -> game_runtime.Game:
 
     for guild in updated_game.guilds.values():
         for character in guild.members.values():
-            updated_game = _process_round_character(updated_game, guild, character)
+            if not character.turn_finished:
+                updated_game = _process_round_character(updated_game, guild, character)
 
     updated_game = utils.replace(updated_game, 'turn_round', updated_game.turn_round + 1)
 

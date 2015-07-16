@@ -38,13 +38,24 @@ def process_action(game: game_runtime.Game, context: action_runtime.ActionContex
     '''
     updated_game = game
 
-    print('{round}: {character} {guild} is doing {action} in {place}'.format(
-        round = updated_game.turn_round,
-        action = context.action.name,
-        character = context.character.name,
-        guild = context.guild.name,
-        place = context.place.definition.name
-    ))
+    if not context.target_guild:
+        print('{round}: {character} {guild} is doing {action} in {place}'.format(
+            round = updated_game.turn_round,
+            action = context.action.name,
+            character = context.character.name,
+            guild = context.guild.name,
+            place = context.place.definition.name,
+        ))
+    else:
+        print('{round}: {character} {guild} is doing {action} to {target_character} {target_guild} in {place}'.format(
+            round = updated_game.turn_round,
+            action = context.action.name,
+            character = context.character.name,
+            guild = context.guild.name,
+            place = context.place.definition.name,
+            target_character = context.target_character.name,
+            target_guild = context.target_guild.name,
+        ))
 
     for check in context.action.checks:
         updated_game = process_check(updated_game, context, check)
@@ -127,6 +138,7 @@ def process_check_ActionCheckTarget(
     updated_game = game
 
     # TODO
+    print(' (skipped)')
 
     return updated_game
 
