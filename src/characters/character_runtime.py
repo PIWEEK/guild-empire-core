@@ -7,6 +7,9 @@ Character = namedtuple('Character', (
     'avatar_slug', # str
     'skills', # {slug: CharacterSkill}
     'conditions', # {slug: CharacterCondition}
+    'turn_round', # int
+    'turn_next_action', # int
+    'turn_finished', # bool
 ))
 
 

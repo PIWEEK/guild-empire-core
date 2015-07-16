@@ -13,6 +13,7 @@ from guilds import guild_defs
 from guilds import guild_runtime
 from characters import character_defs
 from characters import character_runtime
+from actions import action_services
 
 
 sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'definitions'))  # adding definitions directory to path
@@ -36,6 +37,7 @@ def new_game(slug: str) -> game_runtime.Game:
         places = places,
         guilds = guilds,
         turns = {},
+        turn_round = 0,
     )
 
 
@@ -77,6 +79,9 @@ def _new_character(character_def: character_defs.Character) -> character_runtime
         avatar_slug = character_def.avatar_slug,
         skills = skills,
         conditions = conditions,
+        turn_round = 0,
+        turn_next_action = 0,
+        turn_finished = False,
     )
 
 
@@ -104,16 +109,16 @@ def submit_turn(game: game_runtime.Game, turn: game_runtime.Turn) -> game_runtim
     process them and update the game.
     '''
 
-    if not turn.guild.slug in game.guilds:
-        raise exceptions.InvalidValue('Not existing guild {name}'.format(name = turn.guild.name))
+    if not turn.guild_slug in game.guilds:
+        raise exceptions.InvalidValue('Not existing guild {slug}'.format(slug = turn.guild_slug))
 
-    if turn.guild.slug in game.turns:
-        raise exceptions.InvalidValue('Duplicated turn for guild {name}'.format(name = turn.guild.name))
+    if turn.guild_slug in game.turns:
+        raise exceptions.InvalidValue('Duplicated turn for guild {slug}'.format(slug = turn.guild_slug))
 
-    updated_game = utils.replace(game, 'turns', utils.updated_dict(game.turns, turn.guild.slug, turn))
+    updated_game = utils.replace(game, 'turns', utils.updated_dict(game.turns, turn.guild_slug, turn))
 
     if len(updated_game.turns) == len(updated_game.guilds):
-        updated_game = _process_turns(game)
+        updated_game = _process_turns(updated_game)
 
     return updated_game
 
@@ -122,63 +127,56 @@ def _process_turns(game: game_runtime.Game) -> game_runtime.Game:
     '''
     Process all the turns received from players and return a new game runtime with all actions resolved.
     '''
-    # Initialize processing status
-    turn_process = game_runtime.TurnProcess(
-        global_round = 0,
-        guild_characters = {
-            guild.slug: {
-                member.slug: game_runtime.TurnProcessCharacter(character_round = 0, next_action = 0, finished = False)
-                for member in guild.members.values()
-            }
-            for guild in game.guilds.values()
-        }
-    )
 
     # Repeat until all character have exhausted all their actions
     updated_game = game
-    while any([any([not character.finished for character in characters.values()]) for characters in turn_process.guild_characters.values()]):
-        updated_game, turn_process = _process_round(updated_game, turn_process)
+    while any([
+            any([not character.turn_finished for character in guild.members.values()])
+            for guild in updated_game.guilds.values()
+        ]):
+        updated_game = _process_round(updated_game)
+
+    updated_game = utils.replace(updated_game, 'turn_round', 0)
 
     return updated_game
 
 
-def _process_round(game: game_runtime.Game, turn_process: game_runtime.TurnProcess) -> (game_runtime.Game, game_runtime.TurnProcess):
+def _process_round(game: game_runtime.Game) -> game_runtime.Game:
     '''
     Process a round of game for all characters.
     '''
     updated_game = game
-    updated_turn_process = turn_process
 
-    for guild in game.guilds.values():
+    for guild in updated_game.guilds.values():
         for character in guild.members.values():
-            updated_game, updated_turn_process = _process_round_character(game, guild, character, turn_process)
+            updated_game = _process_round_character(game, guild, character)
 
-    updated_turn_process = utils.replace(updated_turn_process, 'global_round', updated_turn_process.global_round + 1)
+    updated_game = utils.replace(updated_game, 'turn_round', updated_game.turn_round + 1)
 
-    return updated_game, updated_turn_process
+    return updated_game
 
 
-def _process_round_character(
-        game: game_runtime.Game,
-        guild: guild_runtime.Guild,
-        character: character_runtime.Character,
-        turn_process: game_runtime.TurnProcess
-    ) -> (game_runtime.Game, game_runtime.TurnProcess):
+def _process_round_character(game: game_runtime.Game, guild: guild_runtime.Guild, character: character_runtime.Character) -> game_runtime.Game:
     '''
     Process a round of game for one character. If the character has no more actions, set the finished flag.
     '''
     updated_game = game
-    updated_turn_process = turn_process
 
-    guild_turn = game.turns.get(guild.slug, None)
+    guild_turn = updated_game.turns.get(guild.slug, None)
     turn_character = guild_turn.characters.get(character.slug, None) if guild_turn else None
-    character_actions = turn_character.actions if turn_character else []
+    turn_actions = turn_character.actions if turn_character else []
 
-    if not character_actions:
-        updated_turn_process = utils.replace(
-            updated_turn_process,
-            'guild_characters.{guild}.{character}.finished'.format(guild = guild.slug, character = character.slug),
-            True
-        )
+    if not turn_actions or character.turn_next_action >= len(turn_actions):
+        updated_game = utils.replace(updated_game, 'guilds.' + guild.slug + '.members.' + character.slug + '.turn_finished', True)
+        updated_game = utils.replace(updated_game, 'guilds.' + guild.slug + '.members.' + character.slug + '.turn_round', 0)
+        updated_game = utils.replace(updated_game, 'guilds.' + guild.slug + '.members.' + character.slug + '.turn_next_action', 0)
+    else:
+        if character.turn_round <= game.turn_round:
+            turn_action = turn_actions[character.turn_next_action]
+            place = game.places[turn_action.place_slug]
+            action = action_services.find_action(turn_action.action_slug, game, place)
+            # TODO: use 'target'
+            updated_game = action_services.process_action(game, guild, character, place, action)
 
-    return updated_game, updated_turn_process
+    return updated_game
+

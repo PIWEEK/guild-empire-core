@@ -6,43 +6,31 @@ Game = namedtuple('Game', (
     'places',  # {slug: Place}
     'guilds', # {slug: Guild}
     'turns', # {slug: Turn}
+    'turn_round', # int
 ))
 
 
 Turn = namedtuple('Turn', (
-    'guild', # Guild
+    'guild_slug', # str
     'characters', # {slug: TurnCharacter}
 ))
 
 
 TurnCharacter = namedtuple('TurnCharacter', (
-    'character', # str
+    'character_slug', # str
     'actions', # TurnCharacterAction[]
 ))
 
 
 TurnCharacterAction = namedtuple('TurnCharacterAction', (
-    'place', # str
-    'action', # str
+    'place_slug', # str
+    'action_slug', # str
     'target', # TurnCharacterActionTarget
 ))
 
 
 TurnCharacterActionTarget = namedtuple('TurnCharacterActionTarget', (
-    'guild', # str
-    'character', # str
-))
-
-
-TurnProcess = namedtuple('TurnProcess', (
-    'global_round', # int
-    'guild_characters', # {str: {str: TurnProcessCharacter[]}}
-))
-
-
-TurnProcessCharacter = namedtuple('TurnProcessCharacter', (
-    'character_round', # int
-    'next_action', # int
-    'finished', # bool
+    'guild_slug', # str
+    'character_slug', # str
 ))
 
