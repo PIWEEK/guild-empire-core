@@ -65,7 +65,7 @@ default = Game(
                     checks = [
                         ActionCheckSkill(
                             skill_slug = 'subterfuge',
-                            difficulty = 40,
+                            difficulty = 120,
                             success = [
                                 ActionResultChangeSkillFixed(min = 0, max = 0, skill_slug = 'subterfuge', amount = 2),
                                 ActionResultChangeAssetVariable(min = 0, max = 0, asset_slug = 'gold', multiplier = 4),
@@ -242,7 +242,7 @@ default = Game(
                             success = [
                                 ActionResultChangeSkillFixed(min = 0, max = 0, skill_slug = 'constitution', amount = 1),
                                 ActionResultChangeSkillFixed(min = 0, max = 0, skill_slug = 'gathering', amount = 2),
-                                ActionResultChangeAssetVariable(min = 0, max = 0, asset_slug = 'wood', multiplier = 1),
+                                ActionResultChangeAssetVariable(min = 0, max = 0, asset_slug = 'gold', multiplier = 1),
                             ],
                             failure = [],
                         ),
@@ -260,7 +260,7 @@ default = Game(
                             success = [
                                 ActionResultChangeSkillFixed(min = 0, max = 0, skill_slug = 'constitution', amount = 1),
                                 ActionResultChangeSkillFixed(min = 0, max = 0, skill_slug = 'gathering', amount = 3),
-                                ActionResultChangeAssetVariable(min = 0, max = 0, asset_slug = 'wood', multiplier = 3),
+                                ActionResultChangeAssetVariable(min = 0, max = 0, asset_slug = 'gold', multiplier = 3),
                             ],
                             failure = [],
                         ),
@@ -273,7 +273,7 @@ default = Game(
                             ],
                             failure = [
                                 ActionResultEvent(min = 0, max = 0, message = '{character} was attacked by bandits, some wood stolen'),
-                                ActionResultChangeAssetVariable(min = 0, max = 0, asset_slug = 'wood', multiplier = -1.5),
+                                ActionResultChangeAssetVariable(min = 0, max = 0, asset_slug = 'gold', multiplier = -1.5),
                             ],
                             not_happen = [],
                         ),
@@ -370,7 +370,6 @@ default = Game(
             color = 'red',
             assets = [
                 GuildAsset(slug = 'gold', name = 'Gold', value = 10000),
-                GuildAsset(slug = 'wood', name = 'Wood', value = 10000),
                 GuildAsset(slug = 'influence', name = 'Influence', value = 10000),
                 GuildAsset(slug = 'reputation', name = 'Reputation', value = 10000),
                 GuildAsset(slug = 'infamy', name = 'Infamy', value = 10000),
