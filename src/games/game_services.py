@@ -143,6 +143,7 @@ def _process_turns(game: game_runtime.Game) -> game_runtime.Game:
             updated_game = utils.replace(updated_game, 'guilds.' + guild.slug + '.members.' + character.slug + '.last_turn.guild_assets', {})
             updated_game = utils.replace(updated_game, 'guilds.' + guild.slug + '.members.' + character.slug + '.last_turn.character_skills', {})
             updated_game = utils.replace(updated_game, 'guilds.' + guild.slug + '.members.' + character.slug + '.last_turn.events', [])
+            updated_game = utils.replace(updated_game, 'guilds.' + guild.slug + '.members.' + character.slug + '.turn_finished', False)
 
     # Repeat until all character have exhausted all their actions
     while any([
