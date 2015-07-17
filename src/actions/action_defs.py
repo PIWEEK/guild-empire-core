@@ -90,12 +90,14 @@ ActionResultDropCondition = namedtuple('ActionResultDropCondition', ActionResult
 
 ActionResultTargetAcquireCondition = namedtuple('ActionResultTargetAcquireCondition', ActionResult._fields + (
     'message', # str
+    'target_message', # str
     'condition', # CharacterCondition
 ))
 
 
 ActionResultTargetDropCondition = namedtuple('ActionResultTargetDropCondition', ActionResult._fields + (
     'message', # str
+    'target_message', # str
     'condition_slug', # str
 ))
 

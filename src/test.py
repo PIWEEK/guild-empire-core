@@ -50,8 +50,8 @@ turn_medici = Turn(
 turn_malatesta = Turn(
     guild_slug = 'malatesta',
     characters = {
-        'segismundo': TurnCharacter(
-            character_slug = 'segismundo',
+        'vergo': TurnCharacter(
+            character_slug = 'vergo',
             actions = [
                 TurnCharacterAction(
                     place_slug = 'tavern',

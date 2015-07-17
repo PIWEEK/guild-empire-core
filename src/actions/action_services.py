@@ -373,6 +373,39 @@ def process_result_ActionResultDropCondition(
 
     updated_game = game
 
+    condition = context.character.conditions.get(result.condition_slug, None)
+
+    if condition:
+        message = result.message.format(
+            guild = context.guild.name,
+            character = context.character.name,
+            target_guild = context.target_guild.name if context.target_guild else '',
+            target_character = context.target_character.name if context.target_character else '',
+        )
+
+        print(' -> {message} [drop {condition}]'.format(message = message, condition = condition.slug))
+
+        from copy import copy
+        new_conditions = copy(context.character.conditions)
+        del new_conditions[result.condition_slug]
+        updated_game = utils.replace(
+            updated_game,
+            'guilds.' + context.guild.slug + '.members.' + context.character.slug + '.conditions',
+            new_conditions,
+        )
+
+        updated_game = utils.replace(
+            updated_game,
+            'guilds.' + context.guild.slug + '.members.' + context.character.slug + '.last_turn.events',
+            updated_game.guilds[context.guild.slug].members[context.character.slug].last_turn.events + [
+                character_runtime.CharacterLastTurnEvent(
+                    message = message,
+                    condition_gained_slug = None,
+                    condition_lost_slug = condition.slug,
+                )
+            ],
+        )
+
     return updated_game
 
 
@@ -386,6 +419,55 @@ def process_result_ActionResultTargetAcquireCondition(
 
     updated_game = game
 
+    if not context.target_guild or not context.target_character:
+        raise exceptions.InvalidValue('Action {action} needs target'.format(action = context.action.name))
+
+    message = result.message.format(
+        guild = context.guild.name,
+        character = context.character.name,
+        target_guild = context.target_guild.name,
+        target_character = context.target_character.name,
+    )
+
+    target_message = result.target_message.format(
+        guild = context.guild.name,
+        character = context.character.name,
+        target_guild = context.target_guild.name,
+        target_character = context.target_character.name,
+    )
+
+    print(' -> {message} [acquire {condition}]'.format(message = message, condition = result.condition.slug))
+
+    updated_game = utils.replace(
+        updated_game,
+        'guilds.' + context.target_guild.slug + '.members.' + context.target_character.slug + '.conditions.' + result.condition.slug,
+        result.condition,
+    )
+
+    updated_game = utils.replace(
+        updated_game,
+        'guilds.' + context.guild.slug + '.members.' + context.character.slug + '.last_turn.events',
+        updated_game.guilds[context.guild.slug].members[context.character.slug].last_turn.events + [
+            character_runtime.CharacterLastTurnEvent(
+                message = message,
+                condition_gained_slug = None,
+                condition_lost_slug = None,
+            )
+        ],
+    )
+
+    updated_game = utils.replace(
+        updated_game,
+        'guilds.' + context.target_guild.slug + '.members.' + context.target_character.slug + '.last_turn.events',
+        updated_game.guilds[context.guild.slug].members[context.character.slug].last_turn.events + [
+            character_runtime.CharacterLastTurnEvent(
+                message = target_message,
+                condition_gained_slug = result.condition.slug,
+                condition_lost_slug = None,
+            )
+        ],
+    )
+
     return updated_game
 
 
@@ -398,6 +480,61 @@ def process_result_ActionResultTargetDropCondition(
     ) -> game_runtime.Game:
 
     updated_game = game
+
+    if not context.target_guild or not context.target_character:
+        raise exceptions.InvalidValue('Action {action} needs target'.format(action = context.action.name))
+
+    condition = context.target_character.conditions.get(result.condition_slug, None)
+
+    if condition:
+        message = result.message.format(
+            guild = context.guild.name,
+            character = context.character.name,
+            target_guild = context.target_guild.name,
+            target_character = context.target_character.name,
+        )
+
+        target_message = result.target_message.format(
+            guild = context.guild.name,
+            character = context.character.name,
+            target_guild = context.target_guild.name,
+            target_character = context.target_character.name,
+        )
+
+        print(' -> {message} [drop {condition}]'.format(message = message, condition = result.condition.slug))
+
+        from copy import copy
+        new_conditions = copy(context.target_character.conditions)
+        del new_conditions[result.condition_slug]
+        updated_game = utils.replace(
+            updated_game,
+            'guilds.' + context.target_guild.slug + '.members.' + context.target_character.slug + '.conditions',
+            new_conditions,
+        )
+
+        updated_game = utils.replace(
+            updated_game,
+            'guilds.' + context.guild.slug + '.members.' + context.character.slug + '.last_turn.events',
+            updated_game.guilds[context.guild.slug].members[context.character.slug].last_turn.events + [
+                character_runtime.CharacterLastTurnEvent(
+                    message = message,
+                    condition_gained_slug = None,
+                    condition_lost_slug = None,
+                )
+            ],
+        )
+
+        updated_game = utils.replace(
+            updated_game,
+            'guilds.' + context.target_guild.slug + '.members.' + context.target_character.slug + '.last_turn.events',
+            updated_game.guilds[context.guild.slug].members[context.character.slug].last_turn.events + [
+                character_runtime.CharacterLastTurnEvent(
+                    message = target_message,
+                    condition_gained_slug = None,
+                    condition_lost_slug = result.condition.slug,
+                )
+            ],
+        )
 
     return updated_game
 

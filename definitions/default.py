@@ -86,11 +86,11 @@ default = Game(
                             skill_slug = 'martial-arts',
                             difficulty = 125,
                             success = [
-                                ActionResultEvent(min = 0, max = 10, message = '{target_character} has participated in a tournament, with good performance'),
+                                ActionResultEvent(min = 0, max = 10, message = '{character} has participated in a tournament, with good performance'),
                                 ActionResultChangeAssetVariable(min = 0, max = 10, asset_slug = 'gold', multiplier = 2),
                                 ActionResultChangeAssetVariable(min = 0, max = 10, asset_slug = 'reputation', multiplier = 2),
                                 ActionResultChangeAssetVariable(min = 0, max = 10, asset_slug = 'influence', multiplier = 2),
-                                ActionResultAcquireCondition(min = 11, max = 0, message = '{target_character} has won a tournament!!',
+                                ActionResultAcquireCondition(min = 11, max = 0, message = '{character} has won a tournament!!',
                                     condition = CharacterCondition (
                                         slug = 'winner',
                                         name = 'Winner',
@@ -103,7 +103,7 @@ default = Game(
                                 ActionResultChangeAssetVariable(min = 11, max = 0, asset_slug = 'influence', multiplier = 4),
                             ],
                             failure = [
-                                ActionResultAcquireCondition(min = 0, max = 0, message = '{target_character} lost tournament in the first fight!!',
+                                ActionResultAcquireCondition(min = 0, max = 0, message = '{character} lost tournament in the first fight!!',
                                     condition = CharacterCondition (
                                         slug = 'loser',
                                         name = 'Loser',
@@ -211,7 +211,9 @@ default = Game(
                     skill_slug = 'martial-arts',
                     target_skill_slug = 'martial-arts',
                     success = [
-                        ActionResultTargetAcquireCondition(min = 0, max = 0, message = '{target_character} now has a broken bone',
+                        ActionResultTargetAcquireCondition(min = 0, max = 0,
+                            message = '{character} attacks {target_character} and breaks a bone',
+                            target_message = '{target_character} has been attacked and now has a broken bone',
                             condition = CharacterCondition (
                                 slug = 'broken-bone',
                                 name = 'Broken bone',
@@ -228,7 +230,7 @@ default = Game(
                     difficulty = 70,
                     success = [],
                     failure = [
-                        ActionResultTargetAcquireCondition(min = 0, max = 0, message = '{character} has been caught by the guard and is now in jail',
+                        ActionResultAcquireCondition(min = 0, max = 0, message = '{character} has been caught by the guard and is now in jail',
                             condition = CharacterCondition (
                                 slug = 'in-jail',
                                 name = 'In Jail',
@@ -254,7 +256,9 @@ default = Game(
                     target_skill_slug = 'eloquence',
                     success = [
                         ActionResultChangeSkillFixed(min = 0, max = 0, skill_slug = 'eloquence', amount = 1),
-                        ActionResultTargetAcquireCondition(min = 0, max = 0, message = '{target_character} now is afraid',
+                        ActionResultTargetAcquireCondition(min = 0, max = 0,
+                            message = '{character} has threatened {target_character} and he/she is now afraid',
+                            target_message = '{target_character} has been threatened and he/she is now afraid',
                             condition = CharacterCondition (
                                 slug = 'afraid',
                                 name = 'Afraid',
