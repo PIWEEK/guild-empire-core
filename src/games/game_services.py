@@ -126,7 +126,7 @@ def submit_turn(game: game_runtime.Game, turn: game_runtime.Turn) -> game_runtim
 
     if len(updated_game.turns) == len(updated_game.guilds):
         updated_game = _process_turns(updated_game)
-        updated_game = utils.replace(updated_game, 'turns', [])
+        updated_game = utils.replace(updated_game, 'turns', {})
 
     return updated_game
 
