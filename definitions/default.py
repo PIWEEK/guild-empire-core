@@ -14,6 +14,72 @@ default = Game(
     # == Places ==
     places = [
 
+        # Market
+        Place(
+            slug = 'market',
+            name = 'Market',
+            actions = [
+                Action(
+                    slug = 'work-for-someone',
+                    name = 'Working for someone',
+                    action_points = 1,
+                    skills_needed = ['eloquence'],
+                    checks = [
+                        ActionCheckSkill(
+                            skill_slug = 'eloquence',
+                            difficulty = 30,
+                            success = [
+                                ActionResultChangeSkillFixed(min = 0, max = 0, skill_slug = 'eloquence', amount = 2),
+                                ActionResultChangeAssetVariable(min = 0, max = 0, asset_slug = 'gold', multiplier = 2),
+                            ],
+                            failure = [
+                                ActionResultEvent(min = 0, max = 0, message = '{character} had an argument with a client and didn\'t get paid'),
+                            ],
+                        ),
+                    ],
+                ),
+                Action(
+                    slug = 'work-for-someone',
+                    name = 'Working on the Blacksmith',
+                    action_points = 1,
+                    skills_needed = ['crafting'],
+                    checks = [
+                        ActionCheckSkill(
+                            skill_slug = 'crafting',
+                            difficulty = 50,
+                            success = [
+                                ActionResultChangeSkillFixed(min = 0, max = 0, skill_slug = 'eloquence', amount = 2),
+                                ActionResultChangeAssetVariable(min = 0, max = 0, asset_slug = 'gold', multiplier = 3),
+                            ],
+                            failure = [
+                                ActionResultEvent(min = 0, max = 0, message = '{character} dropped melte iron on the floor and got no paid'),
+                            ],
+                        ),
+                    ],
+                ),
+                Action(
+                    slug = 'pickpocketing',
+                    name = 'Pickpocket people on the Market',
+                    action_points = 1,
+                    skills_needed = ['subterfuge'],
+                    checks = [
+                        ActionCheckSkill(
+                            skill_slug = 'subterfuge',
+                            difficulty = 40,
+                            success = [
+                                ActionResultChangeSkillFixed(min = 0, max = 0, skill_slug = 'subterfuge', amount = 2),
+                                ActionResultChangeAssetVariable(min = 0, max = 0, asset_slug = 'gold', multiplier = 4),
+                            ],
+                            failure = [
+                                ActionResultEvent(min = 0, max = 0, message = '{character} got caught, and recognized but managed to escape'),
+                                ActionResultChangeAssetFixed(min = 0, max = 0, asset_slug = 'infamy', amount= 10),
+                            ],
+                        ),
+                    ],
+                ),
+            ],
+        ),
+
         # Church
         Place(
             slug = 'church',
@@ -72,6 +138,25 @@ default = Game(
                                         description = 'Happy drunk, increased eloquence',
                                     )
                                 ),
+                            ],
+                        ),
+                    ],
+                ),
+                Action(
+                    slug = 'juggling',
+                    name = 'Juggling',
+                    action_points = 1,
+                    skills_needed = ['dexterity'],
+                    checks = [
+                        ActionCheckSkill(
+                            skill_slug = 'dexterity',
+                            difficulty = 10,
+                            success = [
+                                ActionResultChangeSkillFixed(min = 0, max = 0, skill_slug = 'dexterity', amount = 1),
+                                ActionResultChangeAssetVariable(min = 0, max = 0, asset_slug = 'gold', multiplier = 1),
+                            ],
+                            failure = [
+                                ActionResultEvent(min = 0, max = 0, message = '{character} drop the balls over a costumer drink and got expelled from the tavern'),
                             ],
                         ),
                     ],
@@ -197,7 +282,10 @@ default = Game(
             ],
         ),
 
+
     ],
+
+
 
     # == Free actions ==
     free_actions = [
