@@ -1,10 +1,11 @@
-from collections import namedtuple
+from adt_class import ADTClass
 
-Game = namedtuple('Game', (
-    'slug', # str
-    'name', # str
-    'places', # Place[]
-    'free_actions', # Action[]
-    'guilds', # Guild[]
-))
+class Game(ADTClass):
+    fields = (
+        'slug', # str
+        'name', # str
+        'places', # Place[]
+        'free_actions', # Action[]
+        'guilds', # Guild[]
+    )
 

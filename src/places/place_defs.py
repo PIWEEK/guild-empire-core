@@ -1,8 +1,9 @@
-from collections import namedtuple
+from adt_class import ADTClass
 
-Place = namedtuple('Place', (
-    'slug', # str
-    'name', # str
-    'actions', # Action[]
-))
+class Place(ADTClass):
+    fields = (
+        'slug', # str
+        'name', # str
+        'actions', # Action[]
+    )
 

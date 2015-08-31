@@ -2,7 +2,7 @@ from games.game_services import *
 from games.game_runtime import *
 from storage.methods import save_game
 
-game1 = new_game('default')
+game = new_game('default')
 
 turn_medici = Turn(
     guild_slug = 'medici',
@@ -88,10 +88,10 @@ turn_malatesta = Turn(
     },
 )
 
-game2 = submit_turn(game1, turn_medici)
-game3 = submit_turn(game2, turn_malatesta)
+submit_turn(game, turn_medici)
+submit_turn(game, turn_malatesta)
 
-for guild in game3.guilds.values():
+for guild in game.guilds.values():
     print('\n=== {guild} ==='.format(guild = guild.name))
     for character in guild.members.values():
         print('{character}'.format(character = character.name))
@@ -107,5 +107,5 @@ for guild in game3.guilds.values():
             else:
                 print('  {message}'.format(message = event.message))
 
-# save_game(game3)
-print("UUID: {}".format(game3.uuid))
+# save_game(game)
+print("UUID: {}".format(game.uuid))

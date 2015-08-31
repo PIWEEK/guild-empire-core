@@ -1,36 +1,56 @@
-from collections import namedtuple
+from adt_class import ADTClass
 
-Game = namedtuple('Game', (
-    'uuid',  # uuid of the game
-    'definition',  # game_defs.Game
-    'places',  # {slug: Place}
-    'guilds', # {slug: Guild}
-    'turns', # {slug: Turn}
-    'turn_round', # int
-))
+class Game(ADTClass):
+    fields = (
+        'uuid',  # uuid of the game
+        'definition',  # game_defs.Game
+        'places',  # {slug: Place}
+        'guilds', # {slug: Guild}
+        'turns', # {slug: Turn}
+        'turn_round', # int
+    )
 
+    def clear_turns(self):
+        self.turns = {}
 
-Turn = namedtuple('Turn', (
-    'guild_slug', # str
-    'characters', # {slug: TurnCharacter}
-))
+    def add_turn(self, turn):
+        self.turns[turn.guild_slug] = turn
 
+    def has_all_turns(self):
+        return len(self.turns) == len(self.guilds)
 
-TurnCharacter = namedtuple('TurnCharacter', (
-    'character_slug', # str
-    'actions', # TurnCharacterAction[]
-))
+    def reset_turn_round(self):
+        self.turn_round = 0
 
-
-TurnCharacterAction = namedtuple('TurnCharacterAction', (
-    'place_slug', # str
-    'action_slug', # str
-    'target', # TurnCharacterActionTarget
-))
+    def advance_turn_round(self):
+        self.turn_round += 1
 
 
-TurnCharacterActionTarget = namedtuple('TurnCharacterActionTarget', (
-    'guild_slug', # str
-    'character_slug', # str
-))
+class Turn(ADTClass):
+    fields = (
+        'guild_slug', # str
+        'characters', # {slug: TurnCharacter}
+    )
+
+
+class TurnCharacter(ADTClass):
+    fields = (
+        'character_slug', # str
+        'actions', # TurnCharacterAction[]
+    )
+
+
+class TurnCharacterAction(ADTClass):
+    fields = (
+        'place_slug', # str
+        'action_slug', # str
+        'target', # TurnCharacterActionTarget
+    )
+
+
+class TurnCharacterActionTarget(ADTClass):
+    fields = (
+        'guild_slug', # str
+        'character_slug', # str
+    )
 

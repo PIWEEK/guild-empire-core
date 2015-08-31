@@ -1,107 +1,135 @@
-from collections import namedtuple
+from adt_class import ADTClass
 
-Action = namedtuple('Action', (
-    'slug', # str
-    'name', # str
-    'action_points', # int
-    'skills_needed', # str[]
-    'checks', # ActionCheck[]
-))
+class Action(ADTClass):
+    fields = (
+        'slug', # str
+        'name', # str
+        'action_points', # int
+        'skills_needed', # str[]
+        'checks', # ActionCheck[]
+    )
+
+
+    def upgraded_skills(self) -> list:
+        '''
+        The slugs of skills that be updated if this accion is a success.
+        '''
+        return [
+            success.skill_slug  \
+                for check in self.checks \
+                    for success in check.success if hasattr(success, 'skill_slug')
+        ]
 
 
 # Action checks
 
-ActionCheck = namedtuple('ActionCheck', (
-    'success', # ActionResult[]
-))
+class ActionCheck(ADTClass):
+    fields = (
+        'success', # ActionResult[]
+    )
 
 
-ActionCheckAutomatic = namedtuple('ActionCheckAutomatic', ActionCheck._fields + (
-))
+class ActionCheckAutomatic(ActionCheck):
+    fields = ActionCheck.fields + (
+    )
 
 
-ActionCheckSkill = namedtuple('ActionCheckSkill', ActionCheck._fields + (
-    'skill_slug', # str
-    'difficulty', # int
-    'failure', # ActionResult[]
-))
+class ActionCheckSkill(ActionCheck):
+    fields = ActionCheck.fields + (
+        'skill_slug', # str
+        'difficulty', # int
+        'failure', # ActionResult[]
+    )
 
 
-ActionCheckTarget = namedtuple('ActionCheckTarget', ActionCheck._fields + (
-    'skill_slug', # str
-    'target_skill_slug', # str
-    'failure', # ActionResult[]
-    'not_found', # ActionResult[]
-))
+class ActionCheckTarget(ActionCheck):
+    fields = ActionCheck.fields + (
+        'skill_slug', # str
+        'target_skill_slug', # str
+        'failure', # ActionResult[]
+        'not_found', # ActionResult[]
+    )
 
 
-ActionCheckRandom = namedtuple('ActionCheckRandom', ActionCheck._fields + (
-    'probability', # int
-    'skill_slug', # str
-    'difficulty', # int
-    'failure', # ActionResult[]
-    'not_happen', # ActionResult[]
-))
+class ActionCheckRandom(ActionCheck):
+    fields = ActionCheck.fields + (
+        'probability', # int
+        'skill_slug', # str
+        'difficulty', # int
+        'failure', # ActionResult[]
+        'not_happen', # ActionResult[]
+    )
 
 
 # Action results
 
-ActionResult = namedtuple('ActionResult', (
-    'min', # int
-    'max', # int
-))
+class ActionResult(ADTClass):
+    fields = (
+        'min', # int
+        'max', # int
+    )
 
 
-ActionResultChangeAssetFixed = namedtuple('ActionResultChangeAssetFixed', ActionResult._fields + (
-    'asset_slug', # str
-    'amount', # int
-))
+class ActionResultChangeAssetFixed(ActionResult):
+    fields = ActionResult.fields + (
+        'asset_slug', # str
+        'amount', # int
+    )
 
 
-ActionResultChangeAssetVariable = namedtuple('ActionResultChangeAssetVariable', ActionResult._fields + (
-    'asset_slug', # str
-    'multiplier', # int
-))
+class ActionResultChangeAssetVariable(ActionResult):
+    fields = ActionResult.fields + (
+        'asset_slug', # str
+        'multiplier', # int
+    )
 
 
-ActionResultChangeSkillFixed = namedtuple('ActionResultChangeSkillFixed', ActionResult._fields + (
-    'skill_slug', # str
-    'amount', # int
-))
+class ActionResultChangeSkillFixed(ActionResult):
+    fields = ActionResult.fields + (
+        'skill_slug', # str
+        'amount', # int
+    )
 
 
-ActionResultChangeSkillVariable = namedtuple('ActionResultChangeSkillVariable', ActionResult._fields + (
-    'skill_slug', # str
-    'multiplier', # int
-))
+class ActionResultChangeSkillVariable(ActionResult):
+    fields = ActionResult.fields + (
+        'skill_slug', # str
+        'multiplier', # int
+    )
 
 
-ActionResultAcquireCondition = namedtuple('ActionResultAcquireCondition', ActionResult._fields + (
-    'message', # str
-    'condition', # CharacterCondition
-))
+class ActionResultAcquireCondition(ActionResult):
+    fields = ActionResult.fields + (
+        'message', # str
+        'condition', # CharacterCondition
+    )
 
 
-ActionResultDropCondition = namedtuple('ActionResultDropCondition', ActionResult._fields + (
-    'message', # str
-    'condition_slug', # str
-))
+class ActionResultDropCondition(ActionResult):
+    fields = ActionResult.fields + (
+        'message', # str
+        'condition_slug', # str
+    )
 
 
-ActionResultTargetAcquireCondition = namedtuple('ActionResultTargetAcquireCondition', ActionResult._fields + (
-    'message', # str
-    'target_message', # str
-    'condition', # CharacterCondition
-))
+class ActionResultTargetAcquireCondition(ActionResult):
+    fields = ActionResult.fields + (
+        'message', # str
+        'target_message', # str
+        'condition', # CharacterCondition
+    )
 
 
-ActionResultTargetDropCondition = namedtuple('ActionResultTargetDropCondition', ActionResult._fields + (
-    'message', # str
-    'target_message', # str
-    'condition_slug', # str
-))
+class ActionResultTargetDropCondition(ActionResult):
+    fields = ActionResult.fields + (
+        'message', # str
+        'target_message', # str
+        'condition_slug', # str
+    )
 
 
-ActionResultEvent = namedtuple('ActionResultEvent', ActionResult._fields + (
-    'message', # str
-))
+class ActionResultEvent(ActionResult):
+    fields = ActionResult.fields + (
+        'message', # str
+    )
+

@@ -1,6 +1,7 @@
-from collections import namedtuple
+from adt_class import ADTClass
 
-Place = namedtuple('Place', (
-    'definition', # game_defs.Place
-))
+class Place(ADTClass):
+    fields = (
+        'definition', # game_defs.Place
+    )
 

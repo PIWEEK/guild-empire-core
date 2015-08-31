@@ -10,16 +10,6 @@ from actions import action_defs
 from actions import action_runtime
 
 
-def _get_upgraded_skills_from_action(action: action_defs.Action) -> list:
-    skills = [
-        success.skill_slug  \
-            for check in action.checks \
-                for success in check.success if getattr(success, 'skill_slug', False)
-    ]
-
-    return skills
-
-
 def find_action(action_slug: str, game: game_runtime.Game, place: place_runtime.Place) -> action_defs.Action:
     '''
     Find an action in a game, by slug, and related to some place.
@@ -30,17 +20,15 @@ def find_action(action_slug: str, game: game_runtime.Game, place: place_runtime.
     return action
 
 
-def process_action(game: game_runtime.Game, context: action_runtime.ActionContext) -> game_runtime.Game:
+def process_action(game: game_runtime.Game, context: action_runtime.ActionContext):
     '''
     Process one action within a context, and makes any required modifications in the game state.
 
     Then increments the turn round indexes of the character as needed.
     '''
-    updated_game = game
-
     if not context.target_guild:
         print('{round}: {character} {guild} is doing {action} in {place}'.format(
-            round = updated_game.turn_round,
+            round = game.turn_round,
             action = context.action.name,
             character = context.character.name,
             guild = context.guild.name,
@@ -48,7 +36,7 @@ def process_action(game: game_runtime.Game, context: action_runtime.ActionContex
         ))
     else:
         print('{round}: {character} {guild} is doing {action} to {target_character} {target_guild} in {place}'.format(
-            round = updated_game.turn_round,
+            round = game.turn_round,
             action = context.action.name,
             character = context.character.name,
             guild = context.guild.name,
@@ -58,61 +46,39 @@ def process_action(game: game_runtime.Game, context: action_runtime.ActionContex
         ))
 
     for check in context.action.checks:
-        updated_game = process_check(updated_game, context, check)
+        process_check(context, check)
 
-    updated_game = utils.replace(
-        updated_game,
-        'guilds.' + context.guild.slug + '.members.' + context.character.slug + '.turn_round',
-        context.character.turn_round + context.action.action_points
-    )
-    updated_game = utils.replace(
-        updated_game,
-        'guilds.' + context.guild.slug + '.members.' + context.character.slug + '.turn_next_action',
-        context.character.turn_next_action + 1,
-    )
-
-    return updated_game
+    context.character.advance_turn_round(context.action.action_points)
 
 
 # Action checks
 
 def process_check(
-        game: game_runtime.Game,
         context: action_runtime.ActionContext,
         check: action_defs.ActionCheck,
-    ) -> game_runtime.Game:
+    ):
     '''
     Process one check of an action, and execute some of the results inside.
     '''
     current_module = sys.modules[__name__]
     process_function = getattr(current_module, 'process_check_' + check.__class__.__name__)
-    updated_game = process_function(game, context, check)
-
-    return updated_game
+    process_function(context, check)
 
 
 def process_check_ActionCheckAutomatic(
-        game: game_runtime.Game,
         context: action_runtime.ActionContext,
         check: action_defs.ActionCheck,
-    ) -> game_runtime.Game:
-
-    updated_game = game
+    ):
 
     print(' (automatic)')
     for result in check.success:
-        updated_game = process_result(updated_game, context, check, result, 0)
-
-    return updated_game
+        process_result(context, check, result, 0)
 
 
 def process_check_ActionCheckSkill(
-        game: game_runtime.Game,
         context: action_runtime.ActionContext,
         check: action_defs.ActionCheck,
-    ) -> game_runtime.Game:
-
-    updated_game = game
+    ):
 
     skill = context.character.skills[check.skill_slug]
     roll = utils.dice_roll(skill.value + skill.modifier, check.difficulty)
@@ -120,36 +86,26 @@ def process_check_ActionCheckSkill(
     if roll >= 0:
         print(' (success)')
         for result in check.success:
-            updated_game = process_result(updated_game, context, check, result, roll)
+            process_result(context, check, result, roll)
     else:
         print(' (failure)')
         for result in check.failure:
-            updated_game = process_result(updated_game, context, check, result, -roll)
-
-    return updated_game
+            process_result(context, check, result, -roll)
 
 
 def process_check_ActionCheckTarget(
-        game: game_runtime.Game,
         context: action_runtime.ActionContext,
         check: action_defs.ActionCheck,
-    ) -> game_runtime.Game:
-
-    updated_game = game
+    ):
 
     # TODO
     print(' (skipped)')
 
-    return updated_game
-
 
 def process_check_ActionCheckRandom(
-        game: game_runtime.Game,
         context: action_runtime.ActionContext,
         check: action_defs.ActionCheck,
-    ) -> game_runtime.Game:
-
-    updated_game = game
+    ):
 
     from random import randint
     if randint(1, 100) <= check.probability:
@@ -159,51 +115,41 @@ def process_check_ActionCheckRandom(
         if roll >= 0:
             print(' (success)')
             for result in check.success:
-                updated_game = process_result(updated_game, context, check, result, roll)
+                process_result(context, check, result, roll)
         else:
             print(' (failure)')
             for result in check.failure:
-                updated_game = process_result(updated_game, context, check, result, -roll)
+                process_result(context, check, result, -roll)
     else:
         print(' (not_happen)')
         for result in check.not_happen:
-            updated_game = process_result(updated_game, context, check, result, 0)
-
-    return updated_game
+            process_result(context, check, result, 0)
 
 
 
 # Action results
 
 def process_result(
-        game: game_runtime.Game,
         context: action_runtime.ActionContext,
         check: action_defs.ActionCheck,
         result: action_defs.ActionResult,
         roll: int,
-    ) -> game_runtime.Game:
+    ):
     '''
     Process one action result, making some modifications on the game status.
     '''
-    updated_game = game
-
     if (result.min == 0 or roll >= result.min) and (result.max == 0 or roll <= result.max):
         current_module = sys.modules[__name__]
         process_function = getattr(current_module, 'process_result_' + result.__class__.__name__)
-        updated_game = process_function(updated_game, context, check, result, roll)
-
-    return updated_game
+        process_function(context, check, result, roll)
 
 
 def process_result_ActionResultChangeAssetFixed(
-        game: game_runtime.Game,
         context: action_runtime.ActionContext,
         check: action_defs.ActionCheck,
         result: action_defs.ActionResult,
         roll: int,
-    ) -> game_runtime.Game:
-
-    updated_game = game
+    ):
 
     print(' -> {guild} change {asset} by {amount}'.format(
         guild = context.guild.name,
@@ -211,30 +157,16 @@ def process_result_ActionResultChangeAssetFixed(
         amount = result.amount)
     )
 
-    updated_game = utils.replace(
-        updated_game,
-        'guilds.' + context.guild.slug + '.assets.' + result.asset_slug + '.value',
-        updated_game.guilds[context.guild.slug].assets[result.asset_slug].value + result.amount,
-    )
-
-    updated_game = utils.replace(
-        updated_game,
-        'guilds.' + context.guild.slug + '.members.' + context.character.slug + '.last_turn.guild_assets.' + result.asset_slug,
-        updated_game.guilds[context.guild.slug].members[context.character.slug].last_turn.guild_assets.get(result.asset_slug, 0) + result.amount,
-    )
-
-    return updated_game
+    context.guild.assets[result.asset_slug].update_value(result.amount)
+    context.character.last_turn.update_asset(result.asset_slug, result.amount)
 
 
 def process_result_ActionResultChangeAssetVariable(
-        game: game_runtime.Game,
         context: action_runtime.ActionContext,
         check: action_defs.ActionCheck,
         result: action_defs.ActionResult,
         roll: int,
-    ) -> game_runtime.Game:
-
-    updated_game = game
+    ):
 
     amount = roll * result.multiplier
 
@@ -244,30 +176,16 @@ def process_result_ActionResultChangeAssetVariable(
         amount = amount)
     )
 
-    updated_game = utils.replace(
-        updated_game,
-        'guilds.' + context.guild.slug + '.assets.' + result.asset_slug + '.value',
-        updated_game.guilds[context.guild.slug].assets[result.asset_slug].value + amount,
-    )
-
-    updated_game = utils.replace(
-        updated_game,
-        'guilds.' + context.guild.slug + '.members.' + context.character.slug + '.last_turn.guild_assets.' + result.asset_slug,
-        updated_game.guilds[context.guild.slug].members[context.character.slug].last_turn.guild_assets.get(result.asset_slug, 0) + amount,
-    )
-
-    return updated_game
+    context.guild.assets[result.asset_slug].update_value(amount)
+    context.character.last_turn.update_asset(result.asset_slug, amount)
 
 
 def process_result_ActionResultChangeSkillFixed(
-        game: game_runtime.Game,
         context: action_runtime.ActionContext,
         check: action_defs.ActionCheck,
         result: action_defs.ActionResult,
         roll: int,
-    ) -> game_runtime.Game:
-
-    updated_game = game
+    ):
 
     print(' -> {character} change {skill} by {amount}'.format(
         character = context.character.name,
@@ -275,30 +193,16 @@ def process_result_ActionResultChangeSkillFixed(
         amount = result.amount)
     )
 
-    updated_game = utils.replace(
-        updated_game,
-        'guilds.' + context.guild.slug + '.members.' + context.character.slug + '.skills.' + result.skill_slug + '.value',
-        updated_game.guilds[context.guild.slug].members[context.character.slug].skills[result.skill_slug].value + result.amount,
-    )
-
-    updated_game = utils.replace(
-        updated_game,
-        'guilds.' + context.guild.slug + '.members.' + context.character.slug + '.last_turn.character_skills.' + result.skill_slug,
-        updated_game.guilds[context.guild.slug].members[context.character.slug].last_turn.character_skills.get(result.skill_slug, 0) + result.amount,
-    )
-
-    return updated_game
+    context.character.skills[result.skill_slug].update_value(result.amount)
+    context.character.last_turn.update_skill(result.skill_slug, result.amount)
 
 
 def process_result_ActionResultChangeSkillVariable(
-        game: game_runtime.Game,
         context: action_runtime.ActionContext,
         check: action_defs.ActionCheck,
         result: action_defs.ActionResult,
         roll: int,
-    ) -> game_runtime.Game:
-
-    updated_game = game
+    ):
 
     amount = roll * result.multiplier
 
@@ -308,30 +212,16 @@ def process_result_ActionResultChangeSkillVariable(
         amount = amount)
     )
 
-    updated_game = utils.replace(
-        updated_game,
-        'guilds.' + context.guild.slug + '.members.' + context.character.slug + '.skills.' + result.skill_slug + '.value',
-        updated_game.guilds[context.guild.slug].members[context.character.slug].skills[result.skill_slug].value + amount,
-    )
-
-    updated_game = utils.replace(
-        updated_game,
-        'guilds.' + context.guild.slug + '.members.' + context.character.slug + '.last_turn.character_skills.' + result.skill_slug,
-        updated_game.guilds[context.guild.slug].members[context.character.slug].last_turn.character_skills.get(result.skill_slug, 0) + amount,
-    )
-
-    return updated_game
+    context.character.skills[result.skill_slug].update_value(amount)
+    context.character.last_turn.update_skill(result.skill_slug, amount)
 
 
 def process_result_ActionResultAcquireCondition(
-        game: game_runtime.Game,
         context: action_runtime.ActionContext,
         check: action_defs.ActionCheck,
         result: action_defs.ActionResult,
         roll: int,
-    ) -> game_runtime.Game:
-
-    updated_game = game
+    ):
 
     message = result.message.format(
         guild = context.guild.name,
@@ -342,36 +232,22 @@ def process_result_ActionResultAcquireCondition(
 
     print(' -> {message} [acquire {condition}]'.format(message = message, condition = result.condition.slug))
 
-    updated_game = utils.replace(
-        updated_game,
-        'guilds.' + context.guild.slug + '.members.' + context.character.slug + '.conditions.' + result.condition.slug,
-        result.condition,
+    context.character.acquire_condition(result.condition)
+    context.character.last_turn.add_event(
+        character_runtime.CharacterLastTurnEvent(
+            message = message,
+            condition_gained_slug = result.condition.slug,
+            condition_lost_slug = None,
+        )
     )
-
-    updated_game = utils.replace(
-        updated_game,
-        'guilds.' + context.guild.slug + '.members.' + context.character.slug + '.last_turn.events',
-        updated_game.guilds[context.guild.slug].members[context.character.slug].last_turn.events + [
-            character_runtime.CharacterLastTurnEvent(
-                message = message,
-                condition_gained_slug = result.condition.slug,
-                condition_lost_slug = None,
-            )
-        ],
-    )
-
-    return updated_game
 
 
 def process_result_ActionResultDropCondition(
-        game: game_runtime.Game,
         context: action_runtime.ActionContext,
         check: action_defs.ActionCheck,
         result: action_defs.ActionResult,
         roll: int,
-    ) -> game_runtime.Game:
-
-    updated_game = game
+    ):
 
     condition = context.character.conditions.get(result.condition_slug, None)
 
@@ -385,39 +261,22 @@ def process_result_ActionResultDropCondition(
 
         print(' -> {message} [drop {condition}]'.format(message = message, condition = condition.slug))
 
-        from copy import copy
-        new_conditions = copy(context.character.conditions)
-        del new_conditions[result.condition_slug]
-        updated_game = utils.replace(
-            updated_game,
-            'guilds.' + context.guild.slug + '.members.' + context.character.slug + '.conditions',
-            new_conditions,
+        context.character.drop_condition(condition)
+        context.character.last_turn.add_event(
+            character_runtime.CharacterLastTurnEvent(
+                message = message,
+                condition_gained_slug = None,
+                condition_lost_slug = condition.slug,
+            )
         )
-
-        updated_game = utils.replace(
-            updated_game,
-            'guilds.' + context.guild.slug + '.members.' + context.character.slug + '.last_turn.events',
-            updated_game.guilds[context.guild.slug].members[context.character.slug].last_turn.events + [
-                character_runtime.CharacterLastTurnEvent(
-                    message = message,
-                    condition_gained_slug = None,
-                    condition_lost_slug = condition.slug,
-                )
-            ],
-        )
-
-    return updated_game
 
 
 def process_result_ActionResultTargetAcquireCondition(
-        game: game_runtime.Game,
         context: action_runtime.ActionContext,
         check: action_defs.ActionCheck,
         result: action_defs.ActionResult,
         roll: int,
-    ) -> game_runtime.Game:
-
-    updated_game = game
+    ):
 
     if not context.target_guild or not context.target_character:
         raise exceptions.InvalidValue('Action {action} needs target'.format(action = context.action.name))
@@ -438,48 +297,29 @@ def process_result_ActionResultTargetAcquireCondition(
 
     print(' -> {message} [acquire {condition}]'.format(message = message, condition = result.condition.slug))
 
-    updated_game = utils.replace(
-        updated_game,
-        'guilds.' + context.target_guild.slug + '.members.' + context.target_character.slug + '.conditions.' + result.condition.slug,
-        result.condition,
+    context.target_character.acquire_condition(result.condition)
+    context.character.last_turn.add_event(
+        character_runtime.CharacterLastTurnEvent(
+            message = message,
+            condition_gained_slug = None,
+            condition_lost_slug = None,
+        )
     )
-
-    updated_game = utils.replace(
-        updated_game,
-        'guilds.' + context.guild.slug + '.members.' + context.character.slug + '.last_turn.events',
-        updated_game.guilds[context.guild.slug].members[context.character.slug].last_turn.events + [
-            character_runtime.CharacterLastTurnEvent(
-                message = message,
-                condition_gained_slug = None,
-                condition_lost_slug = None,
-            )
-        ],
+    context.target_character.last_turn.add_event(
+        character_runtime.CharacterLastTurnEvent(
+            message = target_message,
+            condition_gained_slug = result.condition.slug,
+            condition_lost_slug = None,
+        )
     )
-
-    updated_game = utils.replace(
-        updated_game,
-        'guilds.' + context.target_guild.slug + '.members.' + context.target_character.slug + '.last_turn.events',
-        updated_game.guilds[context.guild.slug].members[context.character.slug].last_turn.events + [
-            character_runtime.CharacterLastTurnEvent(
-                message = target_message,
-                condition_gained_slug = result.condition.slug,
-                condition_lost_slug = None,
-            )
-        ],
-    )
-
-    return updated_game
 
 
 def process_result_ActionResultTargetDropCondition(
-        game: game_runtime.Game,
         context: action_runtime.ActionContext,
         check: action_defs.ActionCheck,
         result: action_defs.ActionResult,
         roll: int,
-    ) -> game_runtime.Game:
-
-    updated_game = game
+    ):
 
     if not context.target_guild or not context.target_character:
         raise exceptions.InvalidValue('Action {action} needs target'.format(action = context.action.name))
@@ -503,51 +343,29 @@ def process_result_ActionResultTargetDropCondition(
 
         print(' -> {message} [drop {condition}]'.format(message = message, condition = result.condition.slug))
 
-        from copy import copy
-        new_conditions = copy(context.target_character.conditions)
-        del new_conditions[result.condition_slug]
-        updated_game = utils.replace(
-            updated_game,
-            'guilds.' + context.target_guild.slug + '.members.' + context.target_character.slug + '.conditions',
-            new_conditions,
+        context.target_character.drop_condition(result.condition)
+        context.character.last_turn.add_event(
+            character_runtime.CharacterLastTurnEvent(
+                message = message,
+                condition_gained_slug = None,
+                condition_lost_slug = None,
+            )
         )
-
-        updated_game = utils.replace(
-            updated_game,
-            'guilds.' + context.guild.slug + '.members.' + context.character.slug + '.last_turn.events',
-            updated_game.guilds[context.guild.slug].members[context.character.slug].last_turn.events + [
-                character_runtime.CharacterLastTurnEvent(
-                    message = message,
-                    condition_gained_slug = None,
-                    condition_lost_slug = None,
-                )
-            ],
+        context.target_character.last_turn.add_event(
+            character_runtime.CharacterLastTurnEvent(
+                message = target_message,
+                condition_gained_slug = None,
+                condition_lost_slug = result.condition.slug,
+            )
         )
-
-        updated_game = utils.replace(
-            updated_game,
-            'guilds.' + context.target_guild.slug + '.members.' + context.target_character.slug + '.last_turn.events',
-            updated_game.guilds[context.guild.slug].members[context.character.slug].last_turn.events + [
-                character_runtime.CharacterLastTurnEvent(
-                    message = target_message,
-                    condition_gained_slug = None,
-                    condition_lost_slug = result.condition.slug,
-                )
-            ],
-        )
-
-    return updated_game
 
 
 def process_result_ActionResultEvent(
-        game: game_runtime.Game,
         context: action_runtime.ActionContext,
         check: action_defs.ActionCheck,
         result: action_defs.ActionResult,
         roll: int,
-    ) -> game_runtime.Game:
-
-    updated_game = game
+    ):
 
     message = result.message.format(
         guild = context.guild.name,
@@ -558,17 +376,11 @@ def process_result_ActionResultEvent(
 
     print(' -> {message}'.format(message = message))
 
-    updated_game = utils.replace(
-        updated_game,
-        'guilds.' + context.guild.slug + '.members.' + context.character.slug + '.last_turn.events',
-        updated_game.guilds[context.guild.slug].members[context.character.slug].last_turn.events + [
-            character_runtime.CharacterLastTurnEvent(
-                message = message,
-                condition_gained_slug = None,
-                condition_lost_slug = None,
-            )
-        ],
+    context.character.last_turn.add_event(
+        character_runtime.CharacterLastTurnEvent(
+            message = message,
+            condition_gained_slug = None,
+            condition_lost_slug = None,
+        )
     )
-
-    return updated_game
 

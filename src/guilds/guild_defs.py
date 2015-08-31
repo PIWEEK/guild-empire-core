@@ -1,16 +1,18 @@
-from collections import namedtuple
+from adt_class import ADTClass
 
-Guild = namedtuple('Guild', (
-    'slug', # str
-    'name', # str
-    'color', # str
-    'assets', # Asset[]
-    'members', # Character[]
-))
+class Guild(ADTClass):
+    fields = (
+        'slug', # str
+        'name', # str
+        'color', # str
+        'assets', # Asset[]
+        'members', # Character[]
+    )
 
 
-GuildAsset = namedtuple('GuildAsset', (
-    'slug', # str
-    'name', # str
-    'value', # int
-))
+class GuildAsset(ADTClass):
+    fields = (
+        'slug', # str
+        'name', # str
+        'value', # int
+    )

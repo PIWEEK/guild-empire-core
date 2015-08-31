@@ -13,39 +13,6 @@ def pick_element(function, iterable):
         return None
 
 
-def replace(structure, path, value):
-    path_list = path.split('.')
-    path_cur = path_list[0]
-    path_rest = '.'.join(path_list[1:])
-
-    if not path_rest:
-        sub_structure = structure
-        sub_value = value
-    else:
-        if isinstance(structure, tuple):
-            sub_structure = getattr(structure, path_cur)
-            sub_value = replace(sub_structure, path_rest, value)
-        else:
-            sub_structure = structure[path_cur]
-            sub_value = replace(sub_structure, path_rest, value)
-
-    if isinstance(structure, tuple):
-        return structure._replace(**{path_cur: sub_value})
-    else:
-        new_structure = copy(structure)
-        new_structure[path_cur] = sub_value
-        return new_structure
-
-
-def updated_dict(dictionary, key, value):
-    '''
-    Return a new dictionary that is a copy of the original, with the value added in the key.
-    '''
-    new_dict = copy(dictionary)
-    new_dict[key] = value
-    return new_dict
-
-
 def dice_roll(level: int, difficulty: int) -> int:
     '''
     The basic dice roll in this game:
