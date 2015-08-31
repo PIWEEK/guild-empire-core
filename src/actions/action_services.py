@@ -1,6 +1,7 @@
 import exceptions
 import utils
 import sys
+import dispatching
 
 from games import game_runtime
 from places import place_runtime
@@ -53,21 +54,17 @@ def process_action(game: game_runtime.Game, context: action_runtime.ActionContex
 
 # Action checks
 
+'''
+Process one check of an action, and execute some of the results inside.
+'''
+
+checks = dispatching.DispatchGroup()
+
+
+@checks.dispatch
 def process_check(
         context: action_runtime.ActionContext,
-        check: action_defs.ActionCheck,
-    ):
-    '''
-    Process one check of an action, and execute some of the results inside.
-    '''
-    current_module = sys.modules[__name__]
-    process_function = getattr(current_module, 'process_check_' + check.__class__.__name__)
-    process_function(context, check)
-
-
-def process_check_ActionCheckAutomatic(
-        context: action_runtime.ActionContext,
-        check: action_defs.ActionCheck,
+        check: action_defs.ActionCheckAutomatic,
     ):
 
     print(' (automatic)')
@@ -75,9 +72,10 @@ def process_check_ActionCheckAutomatic(
         process_result(context, check, result, 0)
 
 
-def process_check_ActionCheckSkill(
+@checks.dispatch
+def process_check(
         context: action_runtime.ActionContext,
-        check: action_defs.ActionCheck,
+        check: action_defs.ActionCheckSkill,
     ):
 
     skill = context.character.skills[check.skill_slug]
@@ -93,18 +91,20 @@ def process_check_ActionCheckSkill(
             process_result(context, check, result, -roll)
 
 
-def process_check_ActionCheckTarget(
+@checks.dispatch
+def process_check(
         context: action_runtime.ActionContext,
-        check: action_defs.ActionCheck,
+        check: action_defs.ActionCheckTarget,
     ):
 
     # TODO
     print(' (skipped)')
 
 
-def process_check_ActionCheckRandom(
+@checks.dispatch
+def process_check(
         context: action_runtime.ActionContext,
-        check: action_defs.ActionCheck,
+        check: action_defs.ActionCheckRandom,
     ):
 
     from random import randint
@@ -129,25 +129,28 @@ def process_check_ActionCheckRandom(
 
 # Action results
 
+'''
+Process one action result, making some modifications on the game status.
+'''
+
+results = dispatching.DispatchGroup()
+
+
 def process_result(
         context: action_runtime.ActionContext,
         check: action_defs.ActionCheck,
         result: action_defs.ActionResult,
         roll: int,
     ):
-    '''
-    Process one action result, making some modifications on the game status.
-    '''
     if (result.min == 0 or roll >= result.min) and (result.max == 0 or roll <= result.max):
-        current_module = sys.modules[__name__]
-        process_function = getattr(current_module, 'process_result_' + result.__class__.__name__)
-        process_function(context, check, result, roll)
+        do_process_result(context, check, result, roll)
 
 
-def process_result_ActionResultChangeAssetFixed(
+@results.dispatch
+def do_process_result(
         context: action_runtime.ActionContext,
         check: action_defs.ActionCheck,
-        result: action_defs.ActionResult,
+        result: action_defs.ActionResultChangeAssetFixed,
         roll: int,
     ):
 
@@ -161,10 +164,11 @@ def process_result_ActionResultChangeAssetFixed(
     context.character.last_turn.update_asset(result.asset_slug, result.amount)
 
 
-def process_result_ActionResultChangeAssetVariable(
+@results.dispatch
+def do_process_result(
         context: action_runtime.ActionContext,
         check: action_defs.ActionCheck,
-        result: action_defs.ActionResult,
+        result: action_defs.ActionResultChangeAssetVariable,
         roll: int,
     ):
 
@@ -180,10 +184,11 @@ def process_result_ActionResultChangeAssetVariable(
     context.character.last_turn.update_asset(result.asset_slug, amount)
 
 
-def process_result_ActionResultChangeSkillFixed(
+@results.dispatch
+def do_process_result(
         context: action_runtime.ActionContext,
         check: action_defs.ActionCheck,
-        result: action_defs.ActionResult,
+        result: action_defs.ActionResultChangeSkillFixed,
         roll: int,
     ):
 
@@ -197,10 +202,11 @@ def process_result_ActionResultChangeSkillFixed(
     context.character.last_turn.update_skill(result.skill_slug, result.amount)
 
 
-def process_result_ActionResultChangeSkillVariable(
+@results.dispatch
+def do_process_result(
         context: action_runtime.ActionContext,
         check: action_defs.ActionCheck,
-        result: action_defs.ActionResult,
+        result: action_defs.ActionResultChangeSkillVariable,
         roll: int,
     ):
 
@@ -216,10 +222,11 @@ def process_result_ActionResultChangeSkillVariable(
     context.character.last_turn.update_skill(result.skill_slug, amount)
 
 
-def process_result_ActionResultAcquireCondition(
+@results.dispatch
+def do_process_result(
         context: action_runtime.ActionContext,
         check: action_defs.ActionCheck,
-        result: action_defs.ActionResult,
+        result: action_defs.ActionResultAcquireCondition,
         roll: int,
     ):
 
@@ -242,10 +249,11 @@ def process_result_ActionResultAcquireCondition(
     )
 
 
-def process_result_ActionResultDropCondition(
+@results.dispatch
+def do_process_result(
         context: action_runtime.ActionContext,
         check: action_defs.ActionCheck,
-        result: action_defs.ActionResult,
+        result: action_defs.ActionResultDropCondition,
         roll: int,
     ):
 
@@ -271,10 +279,11 @@ def process_result_ActionResultDropCondition(
         )
 
 
-def process_result_ActionResultTargetAcquireCondition(
+@results.dispatch
+def do_process_result(
         context: action_runtime.ActionContext,
         check: action_defs.ActionCheck,
-        result: action_defs.ActionResult,
+        result: action_defs.ActionResultTargetAcquireCondition,
         roll: int,
     ):
 
@@ -314,10 +323,11 @@ def process_result_ActionResultTargetAcquireCondition(
     )
 
 
-def process_result_ActionResultTargetDropCondition(
+@results.dispatch
+def do_process_result(
         context: action_runtime.ActionContext,
         check: action_defs.ActionCheck,
-        result: action_defs.ActionResult,
+        result: action_defs.ActionResultTargetDropCondition,
         roll: int,
     ):
 
@@ -360,10 +370,11 @@ def process_result_ActionResultTargetDropCondition(
         )
 
 
-def process_result_ActionResultEvent(
+@results.dispatch
+def do_process_result(
         context: action_runtime.ActionContext,
         check: action_defs.ActionCheck,
-        result: action_defs.ActionResult,
+        result: action_defs.ActionResultEvent,
         roll: int,
     ):
 

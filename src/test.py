@@ -25,7 +25,7 @@ turn_medici = Turn(
                     action_slug = 'threaten',
                     target = TurnCharacterActionTarget(
                         guild_slug = 'malatesta',
-                        character_slug = 'francesco',
+                        character_slug = 'ludovica',
                     ),
                 ),
             ],
@@ -60,8 +60,8 @@ turn_malatesta = Turn(
                 ),
             ],
         ),
-        'francesco': TurnCharacter(
-            character_slug = 'francesco',
+        'ludovica': TurnCharacter(
+            character_slug = 'ludovica',
             actions = [
                 TurnCharacterAction(
                     place_slug = 'forest',
